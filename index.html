@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#17212B">
+<meta name="description" content="ArtisanIA : devis, fiche chantier et relances pour couvreurs-charpentiers.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ArtisanIA">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>ArtisanIA</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: bottom tab bar on phones, tabs in the header on wide screens. One working column of 860px.
+   Palette: ardoise (slate ink + blue), crayon de charpentier (yellow) for the single primary action. */
+:root{
+  --bg:#EDF0F3; --surface:#FFFFFF; --surface2:#F5F7F9; --ink:#17212B; --muted:#5A6672; --line:#D6DCE2;
+  --accent:#245B8C; --accent-ink:#FFFFFF; --accent-soft:#E3EDF6;
+  --pencil:#F2C230; --pencil-ink:#1C1700;
+  --good:#17724A; --good-bg:#DFF1E7; --warn:#8A5200; --warn-bg:#FFEFC9; --bad:#AE2A21; --bad-bg:#FBE3E0;
+  --font-display:'Barlow Semi Condensed','Arial Narrow',system-ui,sans-serif;
+  --font-body:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E141A; --surface:#171F27; --surface2:#1E2832; --ink:#E7ECF1; --muted:#9AA7B4; --line:#2B3744;
+  --accent:#7DB4E8; --accent-ink:#0B1722; --accent-soft:#1D2D3D;
+  --pencil:#F2C230; --pencil-ink:#1C1700;
+  --good:#6FD0A0; --good-bg:#163325; --warn:#F2C26B; --warn-bg:#3A2D10; --bad:#F2918A; --bad-bg:#3A1A18;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E141A; --surface:#171F27; --surface2:#1E2832; --ink:#E7ECF1; --muted:#9AA7B4; --line:#2B3744;
+  --accent:#7DB4E8; --accent-ink:#0B1722; --accent-soft:#1D2D3D;
+  --pencil:#F2C230; --pencil-ink:#1C1700;
+  --good:#6FD0A0; --good-bg:#163325; --warn:#F2C26B; --warn-bg:#3A2D10; --bad:#F2918A; --bad-bg:#3A1A18;
+  color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+a{color:var(--accent)}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 84px}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance;letter-spacing:.005em}
+h1{font-size:30px;font-weight:700} h2{font-size:21px;font-weight:600} h3{font-size:17px;font-weight:600}
+p{margin:0} button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:860px;margin:0 auto}
+.stack{display:flex;flex-direction:column;gap:16px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.grow{flex:1 1 0;min-width:0}
+.muted{color:var(--muted)} .small{font-size:13px} .tiny{font-size:12px}
+/* header + nav */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);margin:0 -16px;padding:10px 16px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+.top-in{max-width:860px;margin:0 auto;display:flex;align-items:center;gap:16px}
+.brand{font-family:var(--font-display);font-weight:700;font-size:23px;letter-spacing:.01em;display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink)}
+.brand i{display:inline-block;width:12px;height:22px;background:var(--pencil);clip-path:polygon(0 0,100% 0,100% 72%,50% 100%,0 72%)}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:25;display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border-top:1px solid var(--line);
+  padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+nav.tabs a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:12px;font-weight:500;position:relative}
+nav.tabs a svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav.tabs a[aria-current="page"]{color:var(--accent);background:var(--accent-soft)}
+nav.tabs .dot{position:absolute;top:2px;left:calc(50% + 8px);min-width:17px;height:17px;border-radius:9px;background:var(--bad);color:#fff;font-size:11px;font-weight:600;display:grid;place-items:center;padding:0 4px}
+@media(min-width:720px){
+  body{padding-bottom:48px}
+  nav.tabs{position:static;display:flex;gap:4px;margin-left:auto;background:none;border:0;padding:0}
+  nav.tabs a{flex-direction:row;gap:7px;padding:8px 12px;font-size:14px}
+  nav.tabs a svg{width:18px;height:18px}
+  nav.tabs .dot{position:static}
+}
+/* controls */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.card.flat{background:var(--surface2)}
+.lbl{display:block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+input,select,textarea{width:100%;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 11px;color:var(--ink)}
+textarea{resize:vertical;line-height:1.45}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[type=checkbox]{width:18px;height:18px;padding:0;accent-color:var(--accent);flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:10px 15px;font-weight:600;cursor:pointer;min-height:42px;text-decoration:none}
+.btn:hover{background:var(--surface2)}
+.btn.primary{background:var(--pencil);border-color:var(--pencil);color:var(--pencil-ink)} .btn.primary:hover{filter:brightness(.96)}
+.btn.blue{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{color:var(--bad)} .btn.sm{min-height:34px;padding:6px 11px;font-size:13px}
+.btn[disabled]{opacity:.55;cursor:default}
+.icon-btn{border:0;background:none;color:var(--muted);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:20px;line-height:1}
+.icon-btn:hover{background:var(--surface2);color:var(--bad)}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--surface2);color:var(--muted);white-space:nowrap}
+.pill.good{background:var(--good-bg);color:var(--good)} .pill.warn{background:var(--warn-bg);color:var(--warn)}
+.pill.bad{background:var(--bad-bg);color:var(--bad)} .pill.blue{background:var(--accent-soft);color:var(--accent)}
+.banner{border-radius:var(--r);padding:11px 14px;font-size:14px;background:var(--accent-soft);color:var(--ink);border:1px solid var(--line)}
+.banner.warn{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+.banner.bad{background:var(--bad-bg);color:var(--bad);border-color:transparent}
+.banner.good{background:var(--good-bg);color:var(--good);border-color:transparent}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media(max-width:560px){.grid2,.grid3{grid-template-columns:minmax(0,1fr)}}
+.page-h{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:6px 0 2px}
+main{padding-top:6px}
+.numh{font-size:clamp(22px,7.2vw,30px);white-space:nowrap}
+/* nouveau */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 12px;font-size:13px;cursor:pointer;font-weight:500}
+.chip:hover,.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.spin{width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:sp .8s linear infinite;flex:none}
+@keyframes sp{to{transform:rotate(360deg)}} @media(prefers-reduced-motion:reduce){.spin{animation-duration:3s}}
+.mic[aria-pressed="true"]{background:var(--bad-bg);color:var(--bad);border-color:transparent}
+.partial{color:var(--muted);font-style:italic;min-height:20px}
+/* devis list */
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.stat b{display:block;font-family:var(--font-display);font-size:clamp(18px,5.4vw,24px);white-space:nowrap;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15}
+.stat span{font-size:12px;color:var(--muted)}
+.qcard{display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:13px 15px;cursor:pointer;text-decoration:none;color:inherit}
+.qcard:hover{border-color:var(--accent)}
+.qcard .t{font-weight:600} .amt{font-family:var(--font-display);font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+/* editor */
+.seg{display:flex;gap:4px;background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{flex:1;border:0;background:none;padding:8px 10px;border-radius:8px;font-weight:600;color:var(--muted);cursor:pointer}
+.seg button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.line{border:1px solid var(--line);border-radius:var(--r);padding:11px;display:flex;flex-direction:column;gap:8px;background:var(--surface)}
+.line-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.line-top .cat{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-right:auto}
+.line-nums{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.2fr) minmax(0,1.3fr);gap:8px;align-items:end}
+@media(max-width:430px){.line-nums{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.line-nums label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;display:block}
+.line-nums input{margin-top:3px;font-variant-numeric:tabular-nums}
+.line-total{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;padding-bottom:9px}
+.line .note{font-size:12.5px;color:var(--muted)}
+.totals{display:grid;gap:6px;margin-left:auto;max-width:340px;font-variant-numeric:tabular-nums}
+.totals div{display:flex;justify-content:space-between;gap:16px}
+.totals .ttc{font-family:var(--font-display);font-size:24px;font-weight:700;border-top:2px solid var(--ink);padding-top:6px;margin-top:2px}
+.checks{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.checks li{display:flex;gap:9px;align-items:flex-start;font-size:14px}
+.checks .ic{flex:none;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;margin-top:1px}
+.checks .bad .ic{background:var(--bad-bg);color:var(--bad)} .checks .warn .ic{background:var(--warn-bg);color:var(--warn)}
+.checks .ok .ic{background:var(--good-bg);color:var(--good)} .checks .info .ic{background:var(--accent-soft);color:var(--accent)}
+.checks a{color:var(--accent)}
+.paper{overflow-x:auto;border-radius:var(--r);border:1px solid var(--line);background:var(--surface2);padding:12px}
+/* tarifs */
+.prow{display:grid;grid-template-columns:minmax(0,1fr) 64px 108px 32px;gap:8px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
+.prow:first-child{border-top:0}
+.prow .lab{min-width:0;font-size:14px}
+.prow input{padding:7px 9px;font-variant-numeric:tabular-nums}
+@media(max-width:470px){.prow{grid-template-columns:minmax(0,1fr) 96px 28px}.prow .u{display:none}}
+.meter{height:8px;border-radius:5px;background:var(--surface2);overflow:hidden;border:1px solid var(--line)}
+.meter i{display:block;height:100%;background:var(--good)}
+/* modal + toast */
+.scrim{position:fixed;inset:0;z-index:50;background:rgba(8,12,16,.55);display:flex;align-items:flex-end;justify-content:center;padding:0}
+.sheet{background:var(--surface);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:16px 16px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px))}
+@media(min-width:720px){.scrim{align-items:center;padding:20px}.sheet{border-radius:16px}}
+#toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;max-width:calc(100vw - 32px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
+@media(min-width:720px){#toast{bottom:28px}}
+.empty{text-align:center;padding:28px 16px;color:var(--muted)}
+details>summary{cursor:pointer;font-weight:600}
+/* quote document (always paper-white) */
+.doc{background:#fff;color:#14181d;font-family:Inter,Arial,sans-serif;font-size:12.5px;line-height:1.45;max-width:794px;margin:0 auto;padding:34px 36px;border:1px solid #d8dde2;min-width:620px}
+.doc *{box-sizing:border-box}
+.doc .dh{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;margin-bottom:22px}
+.doc .co{font-size:12px;line-height:1.5} .doc .co strong{font-size:16px;display:block;margin-bottom:2px}
+.doc .meta{text-align:right} .doc .ttl{font-family:'Barlow Semi Condensed','Arial Narrow',Arial,sans-serif;font-size:34px;font-weight:700;letter-spacing:.06em;line-height:1;margin-bottom:6px}
+.doc .box{border:1px solid #cfd5db;border-radius:6px;padding:10px 12px;margin-bottom:14px}
+.doc .box h4,.doc h4.sec{margin:0 0 4px;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:#5a6672}
+.doc .obj{font-size:15px;font-weight:600;margin:4px 0 12px}
+.doc table{width:100%;border-collapse:collapse;margin-bottom:12px}
+.doc th{background:#eef1f4;text-align:left;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;padding:7px 8px;border-bottom:1px solid #cfd5db}
+.doc td{padding:7px 8px;border-bottom:1px solid #e3e7eb;vertical-align:top}
+.doc .r{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.doc .tot{margin-left:auto;width:290px;font-variant-numeric:tabular-nums}
+.doc .tot div{display:flex;justify-content:space-between;padding:3px 0}
+.doc .tot .g{border-top:2px solid #14181d;margin-top:4px;padding-top:6px;font-size:15px;font-weight:700}
+.doc .legal{font-size:11px;color:#3b4550;margin:12px 0}
+.doc .sign{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.doc .sign div{border:1px solid #cfd5db;border-radius:6px;min-height:92px;padding:8px 10px;font-size:11px}
+.doc .foot{margin-top:16px;padding-top:8px;border-top:1px solid #e3e7eb;font-size:10.5px;color:#5a6672}
+</style>
+
+<header class="top"><div class="top-in">
+  <a class="brand" href="#nouveau" aria-label="ArtisanIA, accueil"><i></i>ArtisanIA</a>
+  <nav class="tabs" id="nav" aria-label="Navigation principale"></nav>
+</div></header>
+<main class="wrap" id="app"></main>
+<div id="modal"></div>
+<div id="toast" role="status" hidden></div>
+<datalist id="units"><option value="m²"><option value="ml"><option value="u"><option value="forfait"><option value="h"><option value="m³"><option value="jour"></datalist>
+
+<script>
+(function(){
+'use strict';
+/* ============ helpers ============ */
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-3);
+const r2=n=>Math.round((Number(n)||0)*100)/100;
+const eur=n=>(Number(n)||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR'});
+const nf=(n,d)=>(Number(n)||0).toLocaleString('fr-FR',{maximumFractionDigits:d==null?2:d});
+const isoLocal=(d=new Date())=>new Date(d-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+const today=()=>isoLocal();
+const addDays=(iso,n)=>{const d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return isoLocal(d)};
+const daysBetween=(a,b)=>Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/864e5);
+const fdate=iso=>iso?new Date(iso+'T12:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'';
+const plain=s=>String(s).replace(/[  ]/g,' ');
+const LS_KEY='artisania.v1';
+const STANDALONE=!(window.claude&&window.claude.use);
+
+/* ============ reference data ============ */
+const CATS=['Préparation & sécurité','Dépose','Charpente','Couverture','Zinguerie','Ouvertures & souches','Isolation','Réparation','Divers'];
+/* Indicative market prices (HT). They are placeholders: the artisan must confirm them in "Tarifs". */
+const DEFAULT_PRICES=[
+ ['echaf','Préparation & sécurité','Échafaudage (montage, location, démontage)','forfait',800],
+ ['benne','Préparation & sécurité','Benne et évacuation des gravats','forfait',450],
+ ['depl','Préparation & sécurité','Déplacement et installation de chantier','forfait',60],
+ ['dep_tuile','Dépose','Dépose de la couverture en tuiles, tri et évacuation','m²',18],
+ ['dep_ard','Dépose','Dépose de la couverture en ardoises, tri et évacuation','m²',24],
+ ['char_trad','Charpente','Charpente traditionnelle, fourniture et pose','m²',110],
+ ['fermette','Charpente','Fermettes industrielles, fourniture et pose','m²',62],
+ ['chevron','Charpente','Remplacement de chevron ou pièce de charpente','ml',55],
+ ['panne','Charpente','Remplacement de panne ou poutre','ml',95],
+ ['trait_char','Charpente','Traitement insecticide et fongicide de la charpente','m²',15],
+ ['ecran','Couverture','Écran de sous-toiture HPV, fourniture et pose','m²',14],
+ ['liteaux','Couverture','Liteaux traités, fourniture et pose','m²',12],
+ ['meca','Couverture','Couverture en tuiles mécaniques terre cuite, fourniture et pose','m²',75],
+ ['canal','Couverture','Couverture en tuiles canal, fourniture et pose','m²',88],
+ ['ard','Couverture','Couverture en ardoises naturelles, fourniture et pose','m²',135],
+ ['bac','Couverture','Couverture en bac acier, fourniture et pose','m²',58],
+ ['faitage','Couverture','Faîtage à sec, fourniture et pose','ml',45],
+ ['aretier','Couverture','Arêtiers, fourniture et pose','ml',50],
+ ['rive','Couverture','Rives, fourniture et pose','ml',40],
+ ['demouss','Couverture','Démoussage et traitement hydrofuge de la toiture','m²',12],
+ ['gout_zinc','Zinguerie','Gouttière zinc demi-ronde, fourniture et pose','ml',58],
+ ['gout_pvc','Zinguerie','Gouttière PVC, fourniture et pose','ml',26],
+ ['desc_ep','Zinguerie','Descente d\'eaux pluviales zinc, fourniture et pose','ml',46],
+ ['noue','Zinguerie','Noue zinc, fourniture et pose','ml',72],
+ ['fen_toit','Ouvertures & souches','Fenêtre de toit, fourniture, pose et raccord d\'étanchéité','u',850],
+ ['souche','Ouvertures & souches','Habillage et solin de souche de cheminée','u',450],
+ ['isol','Isolation','Isolation sous rampants, laine minérale 200 mm','m²',38],
+ ['repar','Réparation','Recherche de fuite et réparation ponctuelle','forfait',320],
+ ['tuile_u','Réparation','Remplacement de tuiles cassées, fourniture et pose','u',9],
+ ['mo','Divers','Main-d\'œuvre (taux horaire)','h',45]
+];
+const COMPANY_FORMS=['','Entrepreneur individuel (EI)','Micro-entrepreneur (EI)','EURL','SARL','SAS','SASU'];
+const STATUTS={brouillon:'Brouillon',envoye:'Envoyé',signe:'Signé',refuse:'Refusé'};
+const STATUT_CLASS={brouillon:'',envoye:'blue',signe:'good',refuse:'bad'};
+const EXAMPLES=[
+ {t:'Réfection de toiture',s:"Dupont, 12 rue des Lilas à Rodez. Réfection complète de la toiture : 100 m² de tuiles mécaniques, dépose de l'ancienne couverture, écran sous-toiture, liteaux, 2 Velux à poser, faîtage 12 ml. Maison de 1985. Début en novembre."},
+ {t:'Fuite',s:"Mme Garcia à Onet-le-Château : fuite sur la toiture, une dizaine de tuiles cassées à remplacer, à voir cette semaine."},
+ {t:'Garage',s:"M. Bernard, charpente d'un garage de 6 m x 5 m, fermettes, couverture en bac acier, gouttières PVC 12 ml. Terrain accessible au camion. Construction neuve."}
+];
+
+/* ============ state ============ */
+let storageOK=true, S=null;
+function defaults(){return{v:1,seq:3,
+  company:{nom:'',forme:'',siren:'',rcs:'',capital:'',adresse:'',tel:'',email:'',tvaIntra:'',franchiseTva:false,assureur:'',police:'',zone:'France métropolitaine',rcpro:'',mediateur:'',validite:30,acompte:30,paiement:'Acompte à la commande, solde à la réception des travaux.'},
+  prices:DEFAULT_PRICES.map(p=>({id:p[0],cat:p[1],label:p[2],unit:p[3],pu:p[4],verified:false})),
+  quotes:seedQuotes()}}
+function seedQuotes(){
+  const t=today(), L=(cat,d,q,u,pu,pid)=>({id:uid(),cat,designation:d,qte:q,unite:u,pu,prixId:pid||'',indicatif:false,note:''});
+  const base={tva:{taux:10,raison:''},validite:30,acompte:30,notes:'',horsEtab:true,exemple:true,source:'exemple',texte:'',questions:[],
+    prep:{materiaux:['Tuiles mécaniques : environ 1 200 (à ajuster au modèle)','Liteaux : environ 300 ml','Écran de sous-toiture : 115 m²','2 fenêtres de toit avec raccords'],outillage:['Échafaudage','Harnais et ligne de vie','Cloueur, visseuse, meuleuse','Bâches de protection'],etapes:['Installer l\'échafaudage et les protections','Déposer l\'ancienne couverture','Vérifier et traiter la charpente','Poser écran, liteaux, tuiles','Poser faîtage et fenêtres de toit','Nettoyer, évacuer, réceptionner'],points:['Portance de la charpente','Présence d\'amiante si fibrociment','Accès camion et emplacement benne'],manquants:['Âge exact du logement (TVA 10 %)']}};
+  return[
+   Object.assign({},base,{id:uid(),num:'DEV-2026-001',date:addDays(t,-9),statut:'envoye',sentAt:addDays(t,-8),
+     client:{nom:'Dupont (exemple)',adresse:'12 rue des Lilas, 12000 Rodez',tel:'',email:''},
+     chantier:{titre:'Réfection complète de la toiture'},debut:'Novembre',duree:'2 semaines',
+     lignes:[L('Préparation & sécurité','Échafaudage (montage, location, démontage)',1,'forfait',800,'echaf'),L('Préparation & sécurité','Benne et évacuation des gravats',1,'forfait',450,'benne'),
+       L('Dépose','Dépose de la couverture en tuiles, tri et évacuation',100,'m²',18,'dep_tuile'),L('Couverture','Écran de sous-toiture HPV, fourniture et pose',100,'m²',14,'ecran'),
+       L('Couverture','Liteaux traités, fourniture et pose',100,'m²',12,'liteaux'),L('Couverture','Couverture en tuiles mécaniques terre cuite, fourniture et pose',100,'m²',75,'meca'),
+       L('Couverture','Faîtage à sec, fourniture et pose',12,'ml',45,'faitage'),L('Ouvertures & souches','Fenêtre de toit, fourniture, pose et raccord d\'étanchéité',2,'u',850,'fen_toit')]}),
+   Object.assign({},base,{id:uid(),num:'DEV-2026-002',date:addDays(t,-30),statut:'signe',sentAt:addDays(t,-29),
+     client:{nom:'Garcia (exemple)',adresse:'4 impasse des Noyers, 12850 Onet-le-Château',tel:'',email:''},
+     chantier:{titre:'Réparation de toiture après fuite'},debut:'Dès accord',duree:'1 jour',
+     lignes:[L('Réparation','Recherche de fuite et réparation ponctuelle',1,'forfait',320,'repar'),L('Réparation','Remplacement de tuiles cassées, fourniture et pose',10,'u',9,'tuile_u')],
+     prep:{materiaux:['10 tuiles de réemploi ou neuves'],outillage:['Échelle de toit','Harnais'],etapes:['Repérer la fuite','Remplacer les tuiles','Contrôler l\'étanchéité'],points:['Météo'],manquants:[]}})
+  ];
+}
+function loadState(){
+  try{const raw=localStorage.getItem(LS_KEY);if(raw){const o=JSON.parse(raw);if(o&&o.v===1&&o.quotes&&o.prices){const d=defaults();o.company=Object.assign(d.company,o.company||{});return o}}}catch(_){}
+  return null}
+let saveT=null;
+function save(){try{localStorage.setItem(LS_KEY,JSON.stringify(S));storageOK=true}catch(_){storageOK=false}}
+function scheduleSave(){clearTimeout(saveT);saveT=setTimeout(save,250)}
+S=loadState()||defaults();
+try{localStorage.setItem('artisania.test','1');localStorage.removeItem('artisania.test')}catch(_){storageOK=false}
+save();
+
+/* ============ capabilities ============ */
+const caps={sample:null,dictation:null,downloads:null};
+function browserDictation(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return null;
+  let rec=null,on=false;const H={final:[],partial:[],state:[]};const emit=(k,v)=>H[k].forEach(f=>f(v));
+  return{active:()=>on,onFinal:f=>H.final.push(f),onPartial:f=>H.partial.push(f),onState:f=>H.state.push(f),
+    start(){return new Promise((res,rej)=>{try{rec=new SR();rec.lang='fr-FR';rec.interimResults=true;rec.continuous=true;
+      rec.onresult=e=>{let fin='',part='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)fin+=t;else part+=t}
+        if(fin)emit('final',{text:(/\s$/.test(fin)?fin:fin+' ')});emit('partial',{text:part})};
+      rec.onstart=()=>{on=true;emit('state',{state:'listening'});res()};
+      rec.onerror=e=>{on=false;emit('state',{state:'idle',reason:e.error});if(e.error==='not-allowed'||e.error==='service-not-allowed')rej({code:'not_granted'})};
+      rec.onend=()=>{on=false;emit('state',{state:'idle',reason:'stopped'})};rec.start();emit('state',{state:'starting'})}catch(err){rej({code:'unavailable'})}})},
+    async stop(){if(rec)rec.stop()}}}
+async function initCaps(){
+  if(STANDALONE){caps.dictation=browserDictation();hookDictation();syncCapsUI();return}
+  if(!window.claude||!window.claude.use)return;
+  await Promise.all(Object.keys(caps).map(async k=>{try{caps[k]=await window.claude.use(k)}catch(_){caps[k]=null}}));
+  hookDictation();
+  syncCapsUI();
+}
+function hookDictation(){
+  if(caps.dictation){
+    caps.dictation.onFinal(e=>{const ta=$('#desc');if(!ta)return;ta.value=(ta.value?ta.value+e.text:e.text.trimStart());ta.dispatchEvent(new Event('input'))});
+    caps.dictation.onPartial(e=>{const p=$('#partial');if(p)p.textContent=e.text||''});
+    caps.dictation.onState(e=>{const b=$('#mic');if(b){b.setAttribute('aria-pressed',e.state==='listening'||e.state==='starting'?'true':'false');b.textContent=(e.state==='listening')?'Écoute en cours, arrêter':(e.state==='starting'?'Démarrage…':'Dicter')}if(e.state==='idle'){const p=$('#partial');if(p)p.textContent=''}});
+  }
+}
+function syncCapsUI(){
+  const mic=$('#mic');if(mic)mic.hidden=!caps.dictation;
+  const h=$('#aihint');
+  if(h)h.textContent=STANDALONE?'Version hors ligne : le brouillon est préparé par reconnaissance de mots-clés (surfaces, matériaux, nombre de fenêtres de toit…). Relisez et complétez chaque ligne. L\'assistant IA arrive dans la prochaine version.':caps.sample?'Le brouillon est préparé par l\'IA à partir de vos tarifs. Vous relisez et corrigez chaque ligne avant d\'envoyer.':'Dans cet affichage, l\'IA n\'est pas disponible : le brouillon sera préparé par reconnaissance de mots-clés, plus limitée. Vous pouvez tout corriger ensuite.';
+}
+
+/* ============ money & quote logic ============ */
+const rateOf=q=>S.company.franchiseTva?0:(Number(q.tva&&q.tva.taux)||0);
+function totals(q){
+  const ht=r2(q.lignes.reduce((s,l)=>s+r2((Number(l.qte)||0)*(Number(l.pu)||0)),0));
+  const rate=rateOf(q), tva=r2(ht*rate/100), ttc=r2(ht+tva), acompte=r2(ttc*(Number(q.acompte)||0)/100);
+  return{ht,rate,tva,ttc,acompte,solde:r2(ttc-acompte)}}
+const lineTotal=l=>r2((Number(l.qte)||0)*(Number(l.pu)||0));
+function nextNum(){const n=S.seq++;return'DEV-'+new Date().getFullYear()+'-'+String(n).padStart(3,'0')}
+function newQuote(){return{id:uid(),num:nextNum(),date:today(),statut:'brouillon',sentAt:'',client:{nom:'',adresse:'',tel:'',email:''},chantier:{titre:''},tva:{taux:20,raison:''},
+  lignes:[],validite:S.company.validite||30,acompte:S.company.acompte||30,debut:'',duree:'',notes:'',horsEtab:true,source:'vide',texte:'',questions:[],
+  prep:{materiaux:[],outillage:[],etapes:[],points:[],manquants:[]}}}
+function companyMissing(){
+  const c=S.company,m=[];
+  if(!c.nom.trim())m.push('nom de l\'entreprise');if(!c.forme)m.push('forme juridique');if(!c.siren.trim())m.push('SIREN ou SIRET');
+  if(!c.rcs.trim())m.push('immatriculation (RCS ou RM)');if(!c.adresse.trim())m.push('adresse');if(!c.tel.trim()&&!c.email.trim())m.push('téléphone ou e-mail');
+  if(!c.franchiseTva&&!c.tvaIntra.trim())m.push('n° de TVA intracommunautaire');
+  if(!c.assureur.trim()||!c.police.trim())m.push('assurance décennale (assureur et n° de police)');
+  if(!c.mediateur.trim())m.push('médiateur de la consommation');
+  return m}
+function checks(q){
+  const out=[],t=totals(q),cm=companyMissing();
+  if(cm.length)out.push({k:'bad',t:'Fiche Entreprise incomplète : '+cm.join(', ')+'.',link:['#entreprise','Compléter']});
+  if(!q.client.nom.trim())out.push({k:'bad',t:'Nom du client manquant.'});
+  if(!q.client.adresse.trim())out.push({k:'bad',t:'Adresse du chantier manquante (lieu des travaux).'});
+  if(!q.lignes.length)out.push({k:'bad',t:'Aucune ligne de prestation.'});
+  const z=q.lignes.filter(l=>!(Number(l.qte)>0)).length;if(z)out.push({k:'warn',t:z+(z>1?' lignes ont':' ligne a')+' une quantité à 0 : à mesurer ou à saisir.'});
+  const ind=q.lignes.filter(l=>l.indicatif).length;if(ind)out.push({k:'warn',t:ind+(ind>1?' lignes utilisent':' ligne utilise')+' un prix indicatif non validé. Confirmez-le dans Tarifs ou modifiez le prix.',link:['#tarifs','Mes tarifs']});
+  if(!q.debut.trim())out.push({k:'warn',t:'Date de début estimée non renseignée.'});
+  if(!S.company.franchiseTva&&t.rate<20&&t.rate>0)out.push({k:'warn',t:'TVA réduite '+nf(t.rate)+' % : la mention d\'attestation figure sur le devis. Elle n\'est valable que pour un logement achevé depuis plus de 2 ans.'});
+  if(q.horsEtab)out.push({k:'info',t:'Contrat signé hors établissement : remettez aussi le formulaire de rétractation (délai de 14 jours).'});
+  if(!out.some(x=>x.k==='bad'||x.k==='warn'))out.unshift({k:'ok',t:'Le devis est complet et prêt à envoyer.'});
+  return out}
+const IC={bad:'!',warn:'!',ok:'✓',info:'i'};
+const checksHTML=q=>'<ul class="checks">'+checks(q).map(c=>'<li class="'+c.k+'"><span class="ic">'+IC[c.k]+'</span><span>'+esc(c.t)+(c.link?' <a href="'+c.link[0]+'">'+esc(c.link[1])+'</a>':'')+'</span></li>').join('')+'</ul>';
+
+/* ============ quote document ============ */
+const DOC_CSS=null; // styles live in the page stylesheet; standalone export copies them below
+function docHTML(q){
+  const c=S.company,t=totals(q),till=addDays(q.date,Number(q.validite)||30);
+  const co=[c.forme?esc(c.forme):'',c.capital?'Capital : '+esc(c.capital):'',esc(c.adresse).replace(/\n/g,'<br>'),c.tel?'Tél. '+esc(c.tel):'',esc(c.email),c.siren?'SIREN/SIRET : '+esc(c.siren):'',c.rcs?esc(c.rcs):'',
+    c.franchiseTva?'TVA non applicable, art. 293 B du CGI':(c.tvaIntra?'TVA intracom. : '+esc(c.tvaIntra):'')].filter(Boolean).join('<br>');
+  const rows=q.lignes.map(l=>'<tr><td>'+esc(l.designation).replace(/\n/g,'<br>')+'</td><td class="r">'+nf(l.qte,3)+'</td><td>'+esc(l.unite)+'</td><td class="r">'+eur(l.pu)+'</td><td class="r">'+eur(lineTotal(l))+'</td></tr>').join('')||'<tr><td colspan="5" style="color:#8a94a0">Aucune prestation</td></tr>';
+  const tvaLegal=(!c.franchiseTva&&t.rate>0&&t.rate<20)?'<p class="legal"><strong>Attestation relative au taux réduit de TVA ('+nf(t.rate)+' %).</strong> En signant ce devis, le client atteste que les travaux concernent un local à usage d\'habitation achevé depuis plus de deux ans, qu\'ils ne conduisent pas à la construction d\'un immeuble neuf et qu\'ils n\'augmentent pas de plus de 10 % la surface de plancher existante. À défaut, le taux normal de 20 % s\'applique et le client en supporte le complément.</p>':'';
+  const retr=q.horsEtab?'<p class="legal"><strong>Contrat conclu hors établissement.</strong> Le client dispose d\'un délai de 14 jours pour se rétracter, sans avoir à justifier de motif (art. L221-18 du Code de la consommation). Un formulaire de rétractation est joint au présent devis.</p>':'';
+  const assur=[c.assureur&&c.police?'Assurance décennale : '+esc(c.assureur)+', police n° '+esc(c.police)+(c.zone?', couverture : '+esc(c.zone):''):'',c.rcpro?'Responsabilité civile professionnelle : '+esc(c.rcpro):'',c.mediateur?'Médiateur de la consommation : '+esc(c.mediateur):''].filter(Boolean).join('<br>');
+  return'<div class="doc"><div class="dh"><div class="co"><strong>'+esc(c.nom||'Votre entreprise')+'</strong>'+co+'</div>'
+   +'<div class="meta"><div class="ttl">DEVIS</div>N° '+esc(q.num)+'<br>Date : '+fdate(q.date)+'<br>Valable jusqu\'au '+fdate(till)+'</div></div>'
+   +'<div class="box"><h4>Client et lieu des travaux</h4><strong>'+esc(q.client.nom||'—')+'</strong><br>'+esc(q.client.adresse||'Adresse du chantier à préciser').replace(/\n/g,'<br>')+(q.client.tel?'<br>Tél. '+esc(q.client.tel):'')+(q.client.email?'<br>'+esc(q.client.email):'')+'</div>'
+   +'<div class="obj">'+esc(q.chantier.titre||'Travaux')+'</div>'
+   +'<table><thead><tr><th>Désignation</th><th class="r">Qté</th><th>Unité</th><th class="r">PU HT</th><th class="r">Total HT</th></tr></thead><tbody>'+rows+'</tbody></table>'
+   +'<div class="tot"><div><span>Total HT</span><span>'+eur(t.ht)+'</span></div><div><span>TVA '+nf(t.rate)+' %</span><span>'+eur(t.tva)+'</span></div><div class="g"><span>Total TTC</span><span>'+eur(t.ttc)+'</span></div>'
+   +(q.acompte>0?'<div><span>Acompte '+nf(q.acompte)+' % à la commande</span><span>'+eur(t.acompte)+'</span></div><div><span>Solde</span><span>'+eur(t.solde)+'</span></div>':'')+'</div>'
+   +tvaLegal+'<p class="legal"><strong>Délais :</strong> début estimé '+esc(q.debut||'à convenir')+(q.duree?', durée prévue '+esc(q.duree):'')+'. <strong>Paiement :</strong> '+esc(c.paiement||'à convenir')+(q.notes?'<br><strong>Remarques :</strong> '+esc(q.notes).replace(/\n/g,'<br>'):'')+'<br>Devis gratuit. Prix valables '+(Number(q.validite)||30)+' jours.</p>'+retr
+   +'<div class="sign"><div>Bon pour accord<br>Date et signature du client précédées de la mention « Bon pour accord »</div><div>L\'entreprise<br>'+esc(c.nom)+'</div></div>'
+   +(assur?'<div class="foot">'+assur+'</div>':'')+'</div>'}
+function standalone(q){
+  const css=Array.from(document.styleSheets).flatMap(s=>{try{return Array.from(s.cssRules)}catch(_){return[]}}).filter(r=>r.cssText&&r.cssText.indexOf('.doc')>-1).map(r=>r.cssText).join('\n');
+  return'<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Devis '+esc(q.num)+'</title><style>body{margin:0;background:#eef1f4;padding:20px;font-family:Inter,Arial,sans-serif}.hint{max-width:794px;margin:0 auto 12px;font:14px Arial,sans-serif;color:#33414d}'+css
+   +'@page{margin:12mm}@media print{body{background:#fff;padding:0}.hint{display:none}.doc{border:0;max-width:none;padding:0;min-width:0}}</style></head><body><p class="hint">Pour obtenir un PDF : Imprimer (Ctrl+P ou Cmd+P), puis « Enregistrer au format PDF ».</p>'+docHTML(q)+'</body></html>'}
+function quoteText(q){
+  const c=S.company,t=totals(q);
+  const L=['DEVIS '+q.num+' du '+fdate(q.date),c.nom,'','Client : '+q.client.nom,'Chantier : '+(q.chantier.titre||'')+(q.client.adresse?' ('+q.client.adresse.replace(/\n/g,', ')+')':''),''];
+  q.lignes.forEach(l=>L.push('- '+l.designation+' : '+nf(l.qte,3)+' '+l.unite+' x '+eur(l.pu)+' = '+eur(lineTotal(l))));
+  L.push('','Total HT : '+eur(t.ht),'TVA '+nf(t.rate)+' % : '+eur(t.tva),'Total TTC : '+eur(t.ttc));
+  if(q.acompte>0)L.push('Acompte '+nf(q.acompte)+' % : '+eur(t.acompte));
+  L.push('','Début estimé : '+(q.debut||'à convenir')+(q.duree?' ; durée : '+q.duree:''),'Valable jusqu\'au '+fdate(addDays(q.date,Number(q.validite)||30)));
+  return plain(L.join('\n'))}
+function prepText(q){const p=q.prep,sec=(t,a)=>a&&a.length?'\n'+t+'\n'+a.map(x=>'- '+x).join('\n'):'';
+  return plain('FICHE CHANTIER : '+(q.chantier.titre||q.num)+'\nClient : '+q.client.nom+sec('MATÉRIAUX',p.materiaux)+sec('OUTILLAGE',p.outillage)+sec('ÉTAPES',p.etapes.map((x,i)=>(i+1)+'. '+x))+sec('POINTS À VÉRIFIER',p.points)+sec('QUESTIONS À POSER AU CLIENT',p.manquants))}
+
+/* ============ draft generation: rules fallback ============ */
+const NUMW={un:1,une:1,deux:2,trois:3,quatre:4,cinq:5,six:6,sept:7,huit:8,neuf:9,dix:10};
+function ruleBased(text){
+  const t=text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const has=(...r)=>r.some(x=>x.test(t));
+  const numOf=s=>{if(/^\d/.test(s))return parseFloat(s.replace(',','.'));return NUMW[s]||0};
+  let surf=0,surfNote='';
+  const sm=t.match(/(\d+(?:[.,]\d+)?)\s*(?:m²|m2|metres? carres?)/);
+  if(sm)surf=parseFloat(sm[1].replace(',','.'));
+  else{const dm=t.match(/(\d+(?:[.,]\d+)?)\s*m?\s*[x×]\s*(\d+(?:[.,]\d+)?)\s*m/);if(dm){surf=r2(parseFloat(dm[1].replace(',','.'))*parseFloat(dm[2].replace(',','.')));surfNote='Surface au sol calculée ('+dm[1]+' x '+dm[2]+' m) : à convertir en surface de toiture avec la pente.'}}
+  const lines=[],asked=[];
+  const add=(id,qte,note)=>{if(lines.some(l=>l.prix_id===id))return;lines.push({prix_id:id,qte:qte||0,note:note||''})};
+  const mlNear=(w)=>{let m=t.match(new RegExp('(\\d+(?:[.,]\\d+)?)\\s*(?:ml|m)\\s*(?:de\\s+)?'+w));if(!m)m=t.match(new RegExp(w+'[^0-9]{0,14}(\\d+(?:[.,]\\d+)?)\\s*(?:ml|m)\\b'));return m?parseFloat(m[1].replace(',','.')):0};
+  const full=has(/refection|remplacement de la (?:couverture|toiture)|toiture complete|renovation (?:complete )?de (?:la |sa )?toiture|nouvelle toiture|chang(?:er|ement de) (?:la |sa )?(?:toiture|couverture)/)||(has(/refai|refaire/)&&has(/toiture|couverture/));
+  const mat=has(/ardoise/)?'ard':has(/tuiles? canal|canal/)?'canal':has(/bac acier|bac-acier/)?'bac':'meca';
+  const depose=full||has(/depos/);
+  if(depose&&!has(/construction neuve|neuf\b/))add(has(/ardoise/)&&!/tuile/.test(t)?'dep_ard':'dep_tuile',surf,'');
+  if(full){add('echaf',1,'À confirmer selon hauteur et accès');add('benne',1,'');add('ecran',surf,'');add('liteaux',surf,'');}
+  if(full||has(/tuile|ardoise|bac acier|couverture/)&&surf&&!has(/fuite|cassee/))add(mat,surf,'');
+  if(has(/bac acier|bac-acier/)&&!full&&surf){add('bac',surf,'')}
+  if(has(/faitage/))add('faitage',mlNear('faitage'),'');
+  const vm=t.match(/(\d+|un|une|deux|trois|quatre|cinq|six)\s+(?:velux|fenetres? de toit|fenetres? de toiture|chassis de toit)/);
+  if(vm)add('fen_toit',numOf(vm[1]),'');else if(has(/velux|fenetre de toit|chassis de toit/))add('fen_toit',1,'Nombre à confirmer');
+  if(has(/gouttiere/))add(has(/zinc/)?'gout_zinc':'gout_pvc',mlNear('gouttieres?'),'');
+  if(has(/fermette/))add('fermette',surf,surfNote);else if(has(/charpente/)&&has(/traitement/))add('trait_char',surf,'');else if(has(/charpente/))add('char_trad',surf,surfNote);
+  if(has(/demouss|hydrofuge|nettoyage (?:de la )?toiture/))add('demouss',surf,'');
+  if(has(/isolation|isoler/))add('isol',surf,'');
+  if(has(/fuite|infiltration/))add('repar',1,'');
+  const tm=t.match(/(\d+|un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)\s+(?:tuiles?)\s+(?:cassees?|a remplacer)/)||t.match(/(dizaine)\s+de tuiles/);
+  if(tm)add('tuile_u',tm[1]==='dizaine'?10:numOf(tm[1]),'');
+  else if(has(/tuiles? cassees?/))add('tuile_u',0,'Nombre de tuiles à confirmer');
+  if(lines.length&&!lines.some(l=>l.prix_id==='depl'))add('depl',1,'');
+  // client
+  let nom='';const m1=text.match(/\b(?:M\.|Mme|Mr|Monsieur|Madame|Mlle|chez)\s+([A-ZÀ-Ý][\p{L}'-]+(?:\s+[A-ZÀ-Ý][\p{L}'-]+)?)/u);
+  if(m1)nom=m1[1];else{const m2=text.match(/^\s*([A-ZÀ-Ý][\p{L}'-]+)\s*[,:]/u);if(m2)nom=m2[1]}
+  const am=text.match(/(\d{1,3}\s*(?:bis|ter)?,?\s+(?:rue|avenue|av\.|chemin|route|impasse|allee|allée|boulevard|place|lotissement|quartier)\s+[^.;\n]+)/i);
+  const mo=t.match(/\b(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\b/);
+  const MONTH={janvier:'janvier',fevrier:'février',mars:'mars',avril:'avril',mai:'mai',juin:'juin',juillet:'juillet',aout:'août',septembre:'septembre',octobre:'octobre',novembre:'novembre',decembre:'décembre'};
+  const old=has(/construction neuve|\bneuf\b|extension/)?false:true;
+  const manq=[];
+  if(!surf)manq.push('Surface de toiture à mesurer (m²)');
+  if(!nom)manq.push('Nom du client');
+  if(!am)manq.push('Adresse du chantier');
+  manq.push('Âge du logement (achevé depuis plus de 2 ans ? détermine la TVA)','Pente, hauteur et accès (échafaudage, benne, camion)','État de la charpente à vérifier sur place');
+  return{client:{nom:nom,adresse:am?am[1].trim():'',tel:'',email:''},
+   chantier:{titre:full?'Réfection complète de la toiture':has(/fuite/)?'Réparation de toiture':has(/charpente/)?'Travaux de charpente':'Travaux de couverture'},
+   tva:{taux:20,raison:'Taux normal par prudence. Passez à 10 % seulement si le logement a plus de 2 ans (attestation du client sur le devis).'},
+   delai:{debut:mo?MONTH[mo[1]]:'',duree:''},lignes:lines,
+   prep:prepFallback(full,mat,surf,has(/fuite/)),manquants:manq,_old:old}}
+function prepFallback(full,mat,surf,fuite){
+  const s=surf>0,mats=[],out=['Harnais, ligne de vie et garde-corps','Échelle ou échafaudage conforme','Visseuse, cloueur, meuleuse','Niveau, mètre, cordeau','Bâches de protection'];
+  if(full||mat){const nm={meca:'tuiles mécaniques',canal:'tuiles canal',ard:'ardoises',bac:'plaques de bac acier'}[mat]||'matériaux de couverture';
+    if(s&&mat==='meca')mats.push('Tuiles mécaniques : environ '+Math.round(surf*1.1*12)+' (12/m² avec 10 % de chutes, à ajuster au modèle)');else mats.push('Couverture : '+nm+(s?' pour environ '+nf(surf*1.1,0)+' m² avec chutes':''));
+    if(full&&s){mats.push('Écran de sous-toiture : environ '+nf(surf*1.15,0)+' m² (recouvrements inclus)');mats.push('Liteaux : environ '+nf(surf*3,0)+' ml (à ajuster à l\'entraxe)')}
+    mats.push('Fixations, closoirs, faîtière et accessoires de ventilation')}
+  if(fuite){mats.length=0;mats.push('Tuiles de remplacement, mortier ou colle de fixation')}
+  return{materiaux:mats,outillage:out,
+   etapes:full?['Installer l\'échafaudage et les protections','Déposer l\'ancienne couverture et trier','Contrôler la charpente, remplacer les pièces abîmées','Poser l\'écran de sous-toiture et les liteaux','Poser la couverture, le faîtage et les rives','Raccorder les ouvertures et la zinguerie','Nettoyer, évacuer les gravats, réceptionner']:fuite?['Repérer l\'origine de la fuite','Remplacer les tuiles cassées','Contrôler l\'étanchéité, nettoyer']:['Visite et métrés sur place','Préparer le chantier et la sécurité','Réaliser les travaux','Nettoyer et réceptionner'],
+   points:['Portance et état de la charpente','Présence possible d\'amiante (fibrociment) : diagnostic avant dépose','Autorisation d\'urbanisme si l\'aspect de la toiture change (déclaration préalable en mairie)','Accès camion, emplacement benne, voisinage','Prévisions météo et plan de repli']}}
+
+/* ============ draft generation: AI ============ */
+const PROMPT_HEAD=`Tu es l'assistant de chiffrage d'un artisan français couvreur-charpentier. Tu prépares un BROUILLON de devis à partir de sa description de chantier. L'artisan relira et corrigera tout avant envoi.
+
+RÈGLES
+- Utilise en priorité les prestations de la BIBLIOTHÈQUE DE PRIX en recopiant leur identifiant dans "prix_id". N'invente jamais un prix quand une prestation de la bibliothèque convient.
+- Si une prestation nécessaire n'existe pas dans la bibliothèque, ajoute-la avec "prix_id": "" et un "pu" estimé en euros HT (marché français 2026) ; le prix sera signalé "à vérifier".
+- N'invente jamais une quantité. N'utilise que les chiffres donnés (surfaces, longueurs, nombres). Si tu calcules (ex. 6 m x 5 m), explique le calcul dans "note". Si la quantité est inconnue, mets "qte": 0 et ajoute la question à "prep.manquants".
+- Unités : m² (de toiture), ml, u, forfait, h.
+- Ajoute seulement ce qui est dans la description ou nécessairement lié (ex. échafaudage et benne pour une réfection complète) et signale-le dans "note" ("à confirmer").
+- TVA : 10 si rénovation d'un logement achevé depuis plus de 2 ans ; 5.5 si amélioration de la performance énergétique d'un logement (isolation...) ; 20 dans les autres cas (construction neuve, extension de plus de 10 % de surface, local professionnel) ou si l'information est inconnue. Explique en une phrase dans "raison". Si l'âge du logement manque, mets 20 et ajoute la question à "manquants".
+- "prep" est la fiche de préparation du chantier : "materiaux" (avec quantités estimées quand c'est possible), "outillage", "etapes" (dans l'ordre), "points" à vérifier (sécurité, état de la charpente, amiante pour le fibrociment, accès et levage, déclaration préalable en mairie si l'aspect change, météo), "manquants" (questions à poser au client).
+- Écris en français, de façon concise. Les chaînes vides sont autorisées quand l'information est inconnue.
+
+Réponds uniquement par un objet JSON de cette forme :
+{"client":{"nom":"","adresse":"","tel":"","email":""},"chantier":{"titre":""},"tva":{"taux":20,"raison":""},"delai":{"debut":"","duree":""},"lignes":[{"prix_id":"","cat":"","designation":"","qte":0,"unite":"","pu":0,"note":""}],"prep":{"materiaux":[],"outillage":[],"etapes":[],"points":[],"manquants":[]}}`;
+async function runAI(text,ctl,onProgress){
+  const lib=S.prices.map(p=>p.id+' | '+p.cat+' | '+p.label+' | '+p.unit+' | '+p.pu+' EUR HT').join('\n');
+  const prompt=PROMPT_HEAD+'\n\nBIBLIOTHÈQUE DE PRIX (id | catégorie | désignation | unité | prix)\n'+lib+'\n\nDESCRIPTION DU CHANTIER\n"""\n'+text.slice(0,6000)+'\n"""';
+  return await caps.sample.json(prompt,{signal:ctl.signal,onText:u=>onProgress(u.text.length)});
+}
+const strArr=a=>Array.isArray(a)?a.map(x=>String(x==null?'':x).trim()).filter(Boolean).slice(0,40):[];
+const str=v=>String(v==null?'':v).trim();
+function quoteFromDraft(d,text,source){
+  const q=newQuote();d=d||{};
+  q.source=source;q.texte=text;
+  const cl=d.client||{};q.client={nom:str(cl.nom),adresse:str(cl.adresse),tel:str(cl.tel),email:str(cl.email)};
+  q.chantier={titre:str(d.chantier&&d.chantier.titre)};
+  if(!q.client.adresse&&d.chantier&&d.chantier.adresse)q.client.adresse=str(d.chantier.adresse);
+  let taux=Number(d.tva&&d.tva.taux);if(![20,10,5.5].includes(taux))taux=20;
+  q.tva={taux,raison:str(d.tva&&d.tva.raison)};
+  q.debut=str(d.delai&&d.delai.debut);q.duree=str(d.delai&&d.delai.duree);
+  q.lignes=(Array.isArray(d.lignes)?d.lignes:[]).slice(0,60).map(l=>{
+    const p=S.prices.find(x=>x.id===str(l.prix_id));
+    const qte=Math.max(0,Number(l.qte)||0);
+    return{id:uid(),cat:p?p.cat:(CATS.includes(str(l.cat))?str(l.cat):'Divers'),designation:str(l.designation)||(p?p.label:'Prestation'),qte,unite:str(l.unite)||(p?p.unit:'u'),
+      pu:p?p.pu:Math.max(0,Number(l.pu)||0),prixId:p?p.id:'',indicatif:p?!p.verified:true,note:str(l.note)}});
+  const pr=d.prep||{};
+  q.prep={materiaux:strArr(pr.materiaux),outillage:strArr(pr.outillage),etapes:strArr(pr.etapes),points:strArr(pr.points),manquants:strArr(pr.manquants||d.manquants)};
+  return q}
+
+/* ============ rendering ============ */
+const app=$('#app');
+let ed={tab:'devis'}, flt='tous', delArm='', gen={busy:false,ctl:null,t0:0,timer:0};
+const route=()=>(location.hash||'#nouveau').slice(1);
+const curQuote=()=>{const r=route();return r.startsWith('d-')?S.quotes.find(q=>q.id===r.slice(2)):null};
+const relanceDue=q=>q.statut==='envoye'&&daysBetween(q.lastRelance||q.sentAt||q.date,today())>=5;
+const ICONS={nouveau:'<path d="M12 5v14M5 12h14"/>',devis:'<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>',tarifs:'<path d="M20 12l-8 8-9-9V3h8z"/><circle cx="7.5" cy="7.5" r="1.2"/>',entreprise:'<path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/>'};
+function renderNav(){
+  const r=route().startsWith('d-')?'devis':route(),n=S.quotes.filter(relanceDue).length;
+  const tabs=[['nouveau','Nouveau'],['devis','Devis'],['tarifs','Tarifs'],['entreprise','Entreprise']];
+  $('#nav').innerHTML=tabs.map(([k,l])=>'<a href="#'+k+'"'+(r===k?' aria-current="page"':'')+'><svg viewBox="0 0 24 24" aria-hidden="true">'+ICONS[k]+'</svg>'+l+(k==='devis'&&n?'<span class="dot" title="Devis à relancer">'+n+'</span>':'')+'</a>').join('')}
+function render(){
+  const r=route();renderNav();
+  if(r.startsWith('d-')){const q=curQuote();if(q&&ed.id!==q.id){ed.id=q.id;ed.tab='devis'}app.innerHTML=q?viewEditor(q):'<div class="empty">Devis introuvable. <a href="#devis">Retour aux devis</a></div>'}
+  else if(r==='devis')app.innerHTML=viewList();
+  else if(r==='tarifs')app.innerHTML=viewTarifs();
+  else if(r==='entreprise')app.innerHTML=viewEntreprise();
+  else app.innerHTML=viewNouveau();
+  if(r!=='nouveau'&&r!==''){}
+  syncCapsUI();window.scrollTo(0,0)}
+window.addEventListener('hashchange',()=>{delArm='';render()});
+
+/* --- Nouveau --- */
+function viewNouveau(){
+  return'<div class="stack"><div class="page-h"><div><h1>Nouveau devis</h1><p class="muted">Décrivez le chantier comme à un collègue. Le brouillon se prépare avec vos tarifs.</p></div></div>'
+  +(storageOK?'':'<div class="banner warn">Le navigateur ne conserve pas les données dans cet affichage. Exportez-les depuis l\'onglet Entreprise pour ne rien perdre.</div>')
+  +(companyMissing().length>3?'<div class="banner">Pour envoyer des devis conformes, complétez d\'abord <a href="#entreprise">la fiche Entreprise</a> (identité, assurance décennale).</div>':'')
+  +'<div class="card stack"><div><label class="lbl" for="desc">Description du chantier</label><textarea id="desc" rows="7" placeholder="Ex. : Dupont, 12 rue des Lilas à Rodez. Réfection de toiture, 100 m² de tuiles mécaniques, dépose de l\'ancienne couverture, 2 Velux, début en novembre."></textarea></div>'
+  +'<div class="partial tiny" id="partial" aria-live="polite"></div>'
+  +'<div class="row"><button class="btn mic" id="mic" type="button" aria-pressed="false" hidden>Dicter</button><span class="muted small">Exemples :</span><div class="chips">'+EXAMPLES.map((e,i)=>'<button class="chip" type="button" data-act="example" data-i="'+i+'">'+esc(e.t)+'</button>').join('')+'</div></div>'
+  +'<div id="genstatus" aria-live="polite"></div>'
+  +'<div class="row"><button class="btn primary" id="gen" type="button" data-act="gen">Préparer le devis</button><button class="btn" type="button" data-act="blank">Devis vide</button></div>'
+  +'<p class="muted small" id="aihint"></p></div>'
+  +'<div class="card flat"><h3>Pour un devis juste</h3><p class="small muted" style="margin-top:6px">Indiquez le nom et l\'adresse du client, les surfaces en m², les longueurs en ml, le type de couverture, l\'âge du logement et la date souhaitée. Ce qui manque apparaît ensuite dans les questions à poser au client.</p></div></div>'}
+function setGenUI(){
+  const st=$('#genstatus'),b=$('#gen');if(!st||!b)return;
+  if(gen.busy){const s=Math.round((Date.now()-gen.t0)/1000);st.innerHTML='<div class="row"><span class="spin"></span><span>L\'IA prépare le devis… '+s+' s</span><button class="btn sm" type="button" data-act="stop">Arrêter</button></div>';b.disabled=true}
+  else{b.disabled=false}}
+async function generate(){
+  const ta=$('#desc'),text=(ta.value||'').trim();
+  if(text.length<12){toast('Décrivez un peu plus le chantier (client, travaux, surface).');ta.focus();return}
+  if(gen.busy)return;
+  let draft=null,source='regles';
+  if(caps.sample){
+    gen.busy=true;gen.ctl=new AbortController();gen.t0=Date.now();setGenUI();gen.timer=setInterval(setGenUI,1000);
+    try{draft=await runAI(text,gen.ctl,()=>{});source='ia'}
+    catch(e){
+      clearInterval(gen.timer);gen.busy=false;setGenUI();
+      if(e&&e.code==='cancelled'){const st=$('#genstatus');if(st)st.textContent='Génération arrêtée.';return}
+      const why={rate_limited:'Limite d\'utilisation atteinte.',not_granted:'Accès à l\'IA refusé.',invalid_json:'Réponse de l\'IA illisible.',session_expired:'Session expirée.'}[e&&e.code]||'L\'IA n\'a pas répondu.';
+      toast(why+' Brouillon simple créé à la place.');
+    }
+    clearInterval(gen.timer);gen.busy=false}
+  if(!draft){draft=ruleBased(text);source='regles'}
+  const q=quoteFromDraft(draft,text,source);
+  S.quotes.unshift(q);save();ed.tab='devis';location.hash='d-'+q.id}
+
+/* --- Liste --- */
+function viewList(){
+  const qs=S.quotes,sum=f=>r2(qs.filter(f).reduce((s,q)=>s+totals(q).ttc,0));
+  const att=sum(q=>q.statut==='envoye'),sig=sum(q=>q.statut==='signe'),nrel=qs.filter(relanceDue).length;
+  const f=flt==='tous'?qs:qs.filter(q=>q.statut===flt);
+  const hasEx=qs.some(q=>q.exemple);
+  return'<div class="stack"><div class="page-h"><h1>Devis</h1><a class="btn primary" href="#nouveau">Nouveau devis</a></div>'
+  +'<div class="stats"><div class="stat"><b>'+eur(att).replace(/,00/,'')+'</b><span>en attente de réponse</span></div><div class="stat"><b>'+eur(sig).replace(/,00/,'')+'</b><span>signés</span></div><div class="stat"><b>'+nrel+'</b><span>à relancer</span></div></div>'
+  +'<div class="chips" role="group" aria-label="Filtrer par statut">'+[['tous','Tous'],['brouillon','Brouillons'],['envoye','Envoyés'],['signe','Signés'],['refuse','Refusés']].map(([k,l])=>'<button class="chip" type="button" data-act="flt" data-k="'+k+'" aria-pressed="'+(flt===k)+'">'+l+'</button>').join('')+'</div>'
+  +(f.length?'<div class="stack" style="gap:10px">'+f.map(q=>{const t=totals(q);return'<a class="qcard" href="#d-'+q.id+'"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div class="grow"><div class="t">'+esc(q.client.nom||'Client à renseigner')+(q.exemple?' <span class="pill">exemple</span>':'')+'</div><div class="small muted">'+esc(q.num)+' · '+esc(q.chantier.titre||'Sans titre')+'</div></div><div class="amt">'+eur(t.ttc).replace(/,00/,'')+'</div></div>'
+    +'<div class="row" style="margin-top:8px"><span class="pill '+STATUT_CLASS[q.statut]+'">'+STATUTS[q.statut]+'</span>'+(relanceDue(q)?'<span class="pill warn">À relancer · envoyé il y a '+daysBetween(q.sentAt||q.date,today())+' j</span>':'')+'<span class="tiny muted" style="margin-left:auto">'+fdate(q.date)+'</span></div></a>'}).join('')+'</div>'
+   :'<div class="empty card">Aucun devis dans cette catégorie.</div>')
+  +(hasEx?'<div class="row"><span class="muted small">Les devis marqués « exemple » servent à découvrir l\'application.</span><button class="btn sm" type="button" data-act="rm-examples">Supprimer les exemples</button></div>':'')+'</div>'}
+
+/* --- Éditeur --- */
+function viewEditor(q){
+  const t=totals(q);
+  const banner=q.source==='ia'?'<div class="banner">Brouillon préparé par l\'IA. Relisez chaque ligne, chaque quantité et chaque prix avant d\'envoyer.</div>':q.source==='regles'?'<div class="banner warn">Brouillon simple par mots-clés (IA indisponible ou en échec). Vérifiez toutes les lignes, des prestations peuvent manquer.</div>':'';
+  const head='<div class="page-h"><div class="grow"><a class="small" href="#devis">← Tous les devis</a><h1 class="numh" style="margin-top:2px">'+esc(q.num)+(q.exemple?' <span class="pill">exemple</span>':'')+'</h1></div>'
+   +'<div class="row"><label class="lbl" for="q-statut" style="margin:0">Statut</label><select id="q-statut" data-q="statut" style="width:auto">'+Object.keys(STATUTS).map(k=>'<option value="'+k+'"'+(q.statut===k?' selected':'')+'>'+STATUTS[k]+'</option>').join('')+'</select></div></div>';
+  const seg='<div class="seg" role="tablist">'+[['devis','Devis'],['fiche','Fiche chantier'],['apercu','Aperçu et envoi']].map(([k,l])=>'<button type="button" role="tab" data-act="tab" data-tab="'+k+'" aria-selected="'+(ed.tab===k)+'">'+l+'</button>').join('')+'</div>';
+  let body='';
+  if(ed.tab==='devis')body=editorDevis(q,t);else if(ed.tab==='fiche')body=editorFiche(q);else body=editorApercu(q);
+  return'<div class="stack">'+head+banner+seg+body+'</div>'}
+function field(label,id,path,val,attrs){return'<div><label class="lbl" for="'+id+'">'+label+'</label><input id="'+id+'" data-q="'+path+'" value="'+esc(val)+'" '+(attrs||'')+'></div>'}
+function lineHTML(l){
+  return'<div class="line" data-id="'+l.id+'"><div class="line-top"><span class="cat">'+esc(l.cat)+'</span><span class="pills">'+linePills(l)+'</span><button class="icon-btn" type="button" data-act="del-line" aria-label="Supprimer la ligne">×</button></div>'
+  +'<textarea id="l-'+l.id+'-d" data-f="designation" rows="2" aria-label="Désignation">'+esc(l.designation)+'</textarea>'
+  +'<div class="line-nums"><div><label for="l-'+l.id+'-q">Qté</label><input id="l-'+l.id+'-q" data-f="qte" type="number" step="any" min="0" inputmode="decimal" value="'+esc(l.qte)+'"></div>'
+  +'<div><label for="l-'+l.id+'-u">Unité</label><input id="l-'+l.id+'-u" data-f="unite" list="units" value="'+esc(l.unite)+'"></div>'
+  +'<div><label for="l-'+l.id+'-p">PU HT (€)</label><input id="l-'+l.id+'-p" data-f="pu" type="number" step="any" min="0" inputmode="decimal" value="'+esc(l.pu)+'"></div>'
+  +'<div class="line-total" data-lt>'+eur(lineTotal(l))+'</div></div>'+(l.note?'<p class="note">'+esc(l.note)+'</p>':'')+'</div>'}
+function linePills(l){return(l.indicatif?'<span class="pill warn">prix indicatif</span> ':'')+(!(Number(l.qte)>0)?'<span class="pill bad">quantité à saisir</span>':'')}
+function editorDevis(q,t){
+  const libOpts=CATS.map(c=>{const it=S.prices.filter(p=>p.cat===c);return it.length?'<optgroup label="'+esc(c)+'">'+it.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.label)+' ('+eur(p.pu)+'/'+esc(p.unit)+')</option>').join('')+'</optgroup>':''}).join('')
+   +(S.prices.some(p=>!CATS.includes(p.cat))?'<optgroup label="Autres">'+S.prices.filter(p=>!CATS.includes(p.cat)).map(p=>'<option value="'+esc(p.id)+'">'+esc(p.label)+'</option>').join('')+'</optgroup>':'');
+  const miss=q.prep.manquants.length?'<div class="banner warn"><strong>À demander au client :</strong><ul style="margin:6px 0 0;padding-left:18px">'+q.prep.manquants.map(m=>'<li>'+esc(m)+'</li>').join('')+'</ul></div>':'';
+  return miss
+  +'<div class="card stack"><h3>Client et chantier</h3><div class="grid2">'+field('Nom du client','q-cn','client.nom',q.client.nom,'autocomplete="off"')+field('Téléphone','q-ct','client.tel',q.client.tel,'inputmode="tel"')+'</div>'
+  +'<div><label class="lbl" for="q-ca">Adresse du chantier</label><textarea id="q-ca" data-q="client.adresse" rows="2">'+esc(q.client.adresse)+'</textarea></div>'
+  +'<div class="grid2">'+field('E-mail','q-ce','client.email',q.client.email,'inputmode="email"')+field('Titre du chantier','q-ti','chantier.titre',q.chantier.titre)+'</div></div>'
+  +'<div class="card stack"><div class="row" style="justify-content:space-between"><h3>Prestations</h3><span class="muted small">Prix HT</span></div><div class="stack" id="lines" style="gap:10px">'+(q.lignes.length?q.lignes.map(lineHTML).join(''):'<p class="muted small" id="nolines">Aucune ligne pour le moment. Ajoutez-en depuis vos tarifs.</p>')+'</div>'
+  +'<div class="row"><select id="addlib" aria-label="Ajouter une prestation depuis mes tarifs" class="grow"><option value="">Ajouter depuis mes tarifs…</option>'+libOpts+'</select><button class="btn" type="button" data-act="add-lib">Ajouter</button><button class="btn" type="button" data-act="add-free">Ligne libre</button></div></div>'
+  +'<div class="card stack"><div class="grid2"><div><label class="lbl" for="q-tva">Taux de TVA</label><select id="q-tva" data-q="tva.taux" data-num '+(S.company.franchiseTva?'disabled':'')+'>'+[20,10,5.5].map(v=>'<option value="'+v+'"'+(Number(q.tva.taux)===v?' selected':'')+'>'+nf(v)+' %</option>').join('')+'</select></div><div class="small muted" style="align-self:end">'+(S.company.franchiseTva?'Franchise en base de TVA : aucune TVA facturée (art. 293 B du CGI).':(q.tva.raison?esc(q.tva.raison):'20 % par défaut. 10 % : rénovation d\'un logement de plus de 2 ans. 5,5 % : amélioration énergétique.'))+'</div></div>'
+  +'<div class="totals"><div><span>Total HT</span><b id="t-ht">'+eur(t.ht)+'</b></div><div><span id="t-tva-l">TVA '+nf(t.rate)+' %</span><b id="t-tva">'+eur(t.tva)+'</b></div><div class="ttc"><span>Total TTC</span><span id="t-ttc">'+eur(t.ttc)+'</span></div><div class="muted small"><span>Acompte <span id="t-ap">'+nf(q.acompte)+'</span> %</span><span id="t-ac">'+eur(t.acompte)+'</span></div></div></div>'
+  +'<div class="card stack"><h3>Conditions</h3><div class="grid3">'+field('Début estimé','q-db','debut',q.debut,'placeholder="ex. novembre"')+field('Durée prévue','q-du','duree',q.duree,'placeholder="ex. 2 semaines"')+field('Validité (jours)','q-va','validite',q.validite,'type="number" min="1" data-num inputmode="numeric"')+'</div>'
+  +'<div class="grid2">'+field('Acompte (%)','q-ac','acompte',q.acompte,'type="number" min="0" max="100" data-num inputmode="decimal"')+'<label class="row" style="align-self:end;padding-bottom:9px;flex-wrap:nowrap"><input type="checkbox" id="q-he" data-q="horsEtab" data-bool'+(q.horsEtab?' checked':'')+'><span class="small">Signé hors établissement (chez le client)</span></label></div>'
+  +'<div><label class="lbl" for="q-no">Remarques sur le devis</label><textarea id="q-no" data-q="notes" rows="2">'+esc(q.notes)+'</textarea></div></div>'
+  +'<div class="row"><button class="btn" type="button" data-act="dup">Dupliquer ce devis</button><button class="btn danger" type="button" data-act="del-quote">'+(delArm===q.id?'Confirmer la suppression':'Supprimer')+'</button></div>'}
+function editorFiche(q){
+  const P=[['materiaux','Matériaux','Une ligne par matériau, avec la quantité estimée.'],['outillage','Outillage',''],['etapes','Étapes de travail','Dans l\'ordre.'],['points','Points à vérifier avant et pendant le chantier',''],['manquants','Questions à poser au client','Informations manquantes pour chiffrer juste.']];
+  return'<div class="banner">Fiche de préparation. Une ligne par élément, modifiable. Elle ne figure pas sur le devis envoyé au client.</div>'
+  +P.map(([k,l,h])=>'<div class="card"><label class="lbl" for="p-'+k+'">'+l+'</label>'+(h?'<p class="tiny muted" style="margin-bottom:6px">'+h+'</p>':'')+'<textarea id="p-'+k+'" data-prep="'+k+'" rows="'+Math.max(3,Math.min(10,q.prep[k].length+1))+'">'+esc(q.prep[k].join('\n'))+'</textarea></div>').join('')
+  +'<div class="row"><button class="btn blue" type="button" data-act="copy-prep">Copier la fiche</button></div>'}
+function editorApercu(q){
+  return'<div class="card stack"><h3>Avant d\'envoyer</h3><div id="checks">'+checksHTML(q)+'</div></div>'
+  +'<div class="row"><button class="btn primary" type="button" data-act="'+(STANDALONE?'print':'dl')+'">'+(STANDALONE?'Enregistrer en PDF / Imprimer':'Télécharger le devis')+'</button>'+(STANDALONE?'<button class="btn" type="button" data-act="dl">Télécharger (.html)</button>':'')+'<button class="btn" type="button" data-act="copy-quote">Copier le texte</button>'
+  +(q.statut==='brouillon'?'<button class="btn" type="button" data-act="mark-sent">Marquer comme envoyé</button>':'')+(relanceDue(q)?'<button class="btn" type="button" data-act="relance">Préparer la relance</button>':'')+'</div>'
+  +'<p class="muted small">'+(STANDALONE?'Choisissez « Enregistrer au format PDF » dans la fenêtre d\'impression, puis envoyez le PDF au client.':'Le fichier téléchargé s\'ouvre dans le navigateur : imprimez-le en PDF (Ctrl+P ou Cmd+P) pour l\'envoyer au client.')+'</p>'
+  +'<div class="paper" id="paper">'+docHTML(q)+'</div>'}
+/* partial updates while typing */
+function refreshLine(l){
+  const el=$('.line[data-id="'+l.id+'"]');if(!el)return;
+  $('.pills',el).innerHTML=linePills(l);$('[data-lt]',el).textContent=eur(lineTotal(l))}
+function updateTotals(q){
+  const t=totals(q),s=(id,v)=>{const e=$(id);if(e)e.textContent=v};
+  s('#t-ht',eur(t.ht));s('#t-tva',eur(t.tva));s('#t-ttc',eur(t.ttc));s('#t-tva-l','TVA '+nf(t.rate)+' %');s('#t-ac',eur(t.acompte));s('#t-ap',nf(q.acompte))}
+
+/* --- Tarifs --- */
+function viewTarifs(){
+  const nv=S.prices.filter(p=>!p.verified).length;
+  const groups=CATS.concat(Array.from(new Set(S.prices.map(p=>p.cat).filter(c=>!CATS.includes(c)))));
+  return'<div class="stack"><div class="page-h"><div><h1>Mes tarifs</h1><p class="muted">L\'IA chiffre avec ces prix. Ajustez-les à vos coûts réels.</p></div></div>'
+  +(nv?'<div class="banner warn"><strong>'+nv+' prix indicatifs</strong> viennent d\'une base générale et ne tiennent pas compte de vos coûts. Modifiez chaque prix ou validez-les un par un.<div style="margin-top:8px"><button class="btn sm" type="button" data-act="verify-all">Valider tous les prix tels quels</button></div></div>':'<div class="banner good">Tous vos prix sont validés.</div>')
+  +'<div><label class="lbl" for="pfilter">Rechercher</label><input id="pfilter" type="search" placeholder="gouttière, tuile, échafaudage…"></div>'
+  +'<div class="stack" id="plist">'+groups.map(c=>{const it=S.prices.filter(p=>p.cat===c);return it.length?'<div class="card" data-cat><h3 style="margin-bottom:6px">'+esc(c)+'</h3>'+it.map(p=>'<div class="prow" data-text="'+esc((p.label+' '+p.cat).toLowerCase())+'"><div class="lab">'+esc(p.label)+(p.verified?'':' <span class="pill warn" data-badge>indicatif</span>')+'</div><div class="u muted small">'+esc(p.unit)+'</div><input id="pp-'+p.id+'" aria-label="Prix de '+esc(p.label)+'" data-price="'+esc(p.id)+'" type="number" step="any" min="0" inputmode="decimal" value="'+esc(p.pu)+'"><button class="icon-btn" type="button" data-act="del-price" data-id="'+esc(p.id)+'" aria-label="Supprimer la prestation">×</button></div>').join('')+'</div>':''}).join('')+'</div>'
+  +'<details class="card"><summary>Ajouter une prestation</summary><div class="stack" style="margin-top:12px"><div class="grid2"><div><label class="lbl" for="np-cat">Catégorie</label><select id="np-cat">'+CATS.map(c=>'<option>'+esc(c)+'</option>').join('')+'</select></div><div><label class="lbl" for="np-unit">Unité</label><input id="np-unit" list="units" value="m²"></div></div><div><label class="lbl" for="np-label">Désignation</label><input id="np-label" placeholder="Ex. Pose de chatière de ventilation"></div><div><label class="lbl" for="np-pu">Prix HT (€)</label><input id="np-pu" type="number" step="any" min="0" inputmode="decimal"></div><div><button class="btn blue" type="button" data-act="add-price">Ajouter à mes tarifs</button></div></div></details></div>'}
+
+/* --- Entreprise --- */
+function cf(label,k,attrs,hint){return'<div><label class="lbl" for="c-'+k+'">'+label+'</label><input id="c-'+k+'" data-co="'+k+'" value="'+esc(S.company[k])+'" '+(attrs||'')+'>'+(hint?'<p class="tiny muted" style="margin-top:3px">'+hint+'</p>':'')+'</div>'}
+function viewEntreprise(){
+  const c=S.company,miss=companyMissing(),total=9,done=total-miss.length;
+  return'<div class="stack"><div class="page-h"><div><h1>Mon entreprise</h1><p class="muted">Ces informations apparaissent sur chaque devis.</p></div></div>'
+  +'<div class="card stack"><div class="row" style="justify-content:space-between"><b>Mentions légales du devis</b><span class="small muted" id="comp-n">'+Math.max(0,done)+' sur '+total+'</span></div><div class="meter"><i id="comp-bar" style="width:'+Math.max(0,done)/total*100+'%"></i></div><p class="small muted" id="comp-miss">'+(miss.length?'Manque : '+esc(miss.join(', '))+'.':'Toutes les mentions courantes sont renseignées.')+'</p></div>'
+  +'<div class="card stack"><h3>Identité</h3>'+cf('Nom de l\'entreprise','nom','autocomplete="organization"')
+  +'<div><label class="lbl" for="c-forme">Forme juridique</label><select id="c-forme" data-co="forme">'+COMPANY_FORMS.map(f=>'<option value="'+esc(f)+'"'+(c.forme===f?' selected':'')+'>'+(f||'Choisir…')+'</option>').join('')+'</select></div>'
+  +'<div class="grid2">'+cf('SIREN ou SIRET','siren','inputmode="numeric"')+cf('Immatriculation (RCS ou RM)','rcs','placeholder="ex. RM Aveyron 123 456 789"')+'</div>'
+  +cf('Capital social (sociétés)','capital','placeholder="ex. 5 000 €"')
+  +'<div><label class="lbl" for="c-adresse">Adresse du siège</label><textarea id="c-adresse" data-co="adresse" rows="2">'+esc(c.adresse)+'</textarea></div>'
+  +'<div class="grid2">'+cf('Téléphone','tel','inputmode="tel"')+cf('E-mail','email','inputmode="email"')+'</div></div>'
+  +'<div class="card stack"><h3>TVA</h3><label class="row" style="flex-wrap:nowrap"><input type="checkbox" id="c-franchiseTva" data-co="franchiseTva" data-bool'+(c.franchiseTva?' checked':'')+'><span>Franchise en base de TVA (micro-entreprise) : mention « TVA non applicable, art. 293 B du CGI »</span></label>'+cf('N° de TVA intracommunautaire','tvaIntra',c.franchiseTva?'disabled':'','Inutile en franchise de TVA.')+'</div>'
+  +'<div class="card stack"><h3>Assurances et médiation</h3><div class="grid2">'+cf('Assureur décennale','assureur')+cf('N° de police','police')+'</div>'+cf('Zone de couverture','zone')+cf('Responsabilité civile professionnelle (assureur)','rcpro')+cf('Médiateur de la consommation','mediateur','placeholder="Nom et coordonnées du médiateur"','Obligatoire pour informer vos clients particuliers.')+'</div>'
+  +'<div class="card stack"><h3>Valeurs par défaut des devis</h3><div class="grid2">'+cf('Validité (jours)','validite','type="number" min="1" inputmode="numeric" data-num')+cf('Acompte (%)','acompte','type="number" min="0" max="100" inputmode="decimal" data-num')+'</div>'+cf('Conditions de paiement','paiement')+'</div>'
+  +'<div class="card stack"><h3>Sauvegarde</h3><p class="small muted">Vos données restent dans ce navigateur, sur cet appareil. Exportez-les régulièrement.</p><div class="row"><button class="btn" type="button" data-act="export">Exporter mes données</button><label class="btn" for="imp" style="cursor:pointer">Importer une sauvegarde</label><input id="imp" type="file" accept=".json,application/json" hidden></div>'
+  +'<details><summary class="small">Réinitialiser l\'application</summary><div class="row" style="margin-top:10px"><button class="btn danger sm" type="button" data-act="reset">'+(delArm==='reset'?'Confirmer : tout effacer':'Tout effacer et recommencer')+'</button></div></details></div>'
+  +'<p class="tiny muted">Les mentions proposées reprennent les usages courants du devis du bâtiment. Faites-les valider par votre comptable avant un usage professionnel.</p></div>'}
+
+/* ============ interactions ============ */
+function toast(msg){const t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>{t.hidden=true},3800)}
+function openModal(html){const m=$('#modal');m.innerHTML='<div class="scrim" data-act="close-modal"><div class="sheet" role="dialog" aria-modal="true">'+html+'</div></div>';const f=$('.sheet textarea,.sheet button',m);if(f)f.focus()}
+function closeModal(){$('#modal').innerHTML=''}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+async function copyText(text,label){
+  try{await navigator.clipboard.writeText(text);toast((label||'Texte')+' copié.')}
+  catch(_){openModal('<h3>Copier le texte</h3><p class="small muted" style="margin:6px 0 10px">Sélectionnez le texte puis copiez-le.</p><textarea id="cpy" rows="10" readonly>'+esc(text)+'</textarea><div class="row" style="margin-top:10px"><button class="btn" type="button" data-act="close-modal">Fermer</button></div>');const t=$('#cpy');if(t){t.focus();t.select()}}}
+function printDoc(q){
+  const f=document.createElement('iframe');f.setAttribute('aria-hidden','true');f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0';
+  document.body.appendChild(f);f.onload=()=>{try{f.contentWindow.focus();f.contentWindow.print()}catch(_){toast('Impression impossible ici. Utilisez Télécharger le devis.')}setTimeout(()=>f.remove(),4000)};f.srcdoc=standalone(q)}
+async function saveFile(name,data){
+  if(!caps.downloads&&STANDALONE){
+    try{const type=/\.json$/.test(name)?'application/json':'text/html';const url=URL.createObjectURL(new Blob([data],{type:type+';charset=utf-8'}));
+      const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);toast('Fichier enregistré.')}
+    catch(_){toast('Téléchargement impossible.')}return}
+  if(!caps.downloads){toast('Téléchargement indisponible dans cet affichage. Utilisez « Copier le texte ».');return}
+  try{await caps.downloads.save({filename:name,data});toast('Fichier enregistré.')}
+  catch(e){if(!e||e.code!=='declined')toast('Téléchargement impossible ('+(e&&e.code||'erreur')+').')}}
+function relanceModal(q){
+  const t=totals(q),c=S.company,sent=fdate(q.sentAt||q.date),nom=q.client.nom.replace(/\s*\(exemple\)/,'')||'Madame, Monsieur',till=fdate(addDays(q.date,Number(q.validite)||30));
+  const v1='Bonjour '+nom+',\n\nJe me permets de revenir vers vous au sujet du devis '+q.num+' ('+(q.chantier.titre||'travaux')+', '+eur(t.ttc)+' TTC) que je vous ai envoyé le '+sent+'.\nAvez-vous pu le consulter ? Je reste disponible pour répondre à vos questions ou ajuster la proposition.\n\nCordialement,\n'+(c.nom||'');
+  const v2='Bonjour '+nom+',\n\nVotre devis '+q.num+' reste valable jusqu\'au '+till+'. Si le projet est toujours d\'actualité, je peux réserver une date de chantier dès votre accord. Souhaitez-vous que nous en parlions ?\n\nCordialement,\n'+(c.nom||'');
+  openModal('<h3>Relancer '+esc(nom)+'</h3><p class="small muted" style="margin:4px 0 10px">Deux formulations. Copiez, collez dans votre SMS ou votre e-mail.</p>'
+   +'<label class="lbl" for="rl1">Courtoise</label><textarea id="rl1" rows="6" readonly>'+esc(plain(v1))+'</textarea><div class="row" style="margin:8px 0 14px"><button class="btn sm blue" type="button" data-act="copy-ta" data-t="rl1">Copier</button></div>'
+   +'<label class="lbl" for="rl2">Avec la date limite</label><textarea id="rl2" rows="5" readonly>'+esc(plain(v2))+'</textarea><div class="row" style="margin:8px 0 14px"><button class="btn sm blue" type="button" data-act="copy-ta" data-t="rl2">Copier</button></div>'
+   +'<div class="row"><button class="btn primary" type="button" data-act="relanced" data-id="'+q.id+'">J\'ai relancé</button><button class="btn" type="button" data-act="close-modal">Fermer</button></div>')}
+
+app.addEventListener('click',async e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,q=curQuote();
+  if(a==='example'){const ta=$('#desc');ta.value=EXAMPLES[+b.dataset.i].s;ta.focus()}
+  else if(a==='gen')generate();
+  else if(a==='stop'){if(gen.ctl)gen.ctl.abort()}
+  else if(a==='blank'){const n=newQuote();S.quotes.unshift(n);save();ed.tab='devis';location.hash='d-'+n.id}
+  else if(a==='flt'){flt=b.dataset.k;render()}
+  else if(a==='rm-examples'){S.quotes=S.quotes.filter(x=>!x.exemple);save();render()}
+  else if(a==='tab'){ed.tab=b.dataset.tab;render()}
+  else if(a==='add-lib'){const id=$('#addlib').value;if(!id||!q)return;const p=S.prices.find(x=>x.id===id);if(!p)return;
+    q.lignes.push({id:uid(),cat:p.cat,designation:p.label,qte:(p.unit==='forfait'||p.unit==='u')?1:0,unite:p.unit,pu:p.pu,prixId:p.id,indicatif:!p.verified,note:''});save();render()}
+  else if(a==='add-free'&&q){q.lignes.push({id:uid(),cat:'Divers',designation:'',qte:1,unite:'u',pu:0,prixId:'',indicatif:false,note:''});save();render()}
+  else if(a==='del-line'&&q){const id=b.closest('.line').dataset.id;q.lignes=q.lignes.filter(l=>l.id!==id);save();render()}
+  else if(a==='dup'&&q){const n=JSON.parse(JSON.stringify(q));n.id=uid();n.num=nextNum();n.date=today();n.statut='brouillon';n.sentAt='';n.exemple=false;n.lastRelance='';n.client.nom=n.client.nom.replace(/\s*\(exemple\)/,'');n.lignes.forEach(l=>l.id=uid());S.quotes.unshift(n);save();location.hash='d-'+n.id;toast('Devis dupliqué.')}
+  else if(a==='del-quote'&&q){if(delArm===q.id){S.quotes=S.quotes.filter(x=>x.id!==q.id);delArm='';save();location.hash='devis';toast('Devis supprimé.')}else{delArm=q.id;render()}}
+  else if(a==='copy-prep'&&q)copyText(prepText(q),'Fiche');
+  else if(a==='copy-quote'&&q)copyText(quoteText(q),'Devis');
+  else if(a==='print'&&q)printDoc(q);
+  else if(a==='dl'&&q)saveFile('Devis-'+q.num+'.html',standalone(q));
+  else if(a==='mark-sent'&&q){q.statut='envoye';q.sentAt=today();save();render();toast('Devis marqué comme envoyé.')}
+  else if(a==='relance'&&q)relanceModal(q);
+  else if(a==='copy-ta'){const t=$('#'+b.dataset.t);copyText(t.value,'Message')}
+  else if(a==='relanced'){const x=S.quotes.find(z=>z.id===b.dataset.id);if(x){x.lastRelance=today();save()}closeModal();render();toast('Relance enregistrée.')}
+  else if(a==='close-modal'){if(e.target===b||b.tagName==='BUTTON')closeModal()}
+  else if(a==='verify-all'){S.prices.forEach(p=>p.verified=true);save();render()}
+  else if(a==='del-price'){S.prices=S.prices.filter(p=>p.id!==b.dataset.id);save();render()}
+  else if(a==='add-price'){const label=$('#np-label').value.trim(),pu=parseFloat($('#np-pu').value);if(!label||!(pu>=0)){toast('Indiquez une désignation et un prix.');return}
+    S.prices.push({id:'c_'+uid(),cat:$('#np-cat').value,label,unit:$('#np-unit').value.trim()||'u',pu,verified:true});save();render();toast('Prestation ajoutée.')}
+  else if(a==='export')saveFile('ArtisanIA-sauvegarde-'+today()+'.json',JSON.stringify(S,null,1));
+  else if(a==='reset'){if(delArm==='reset'){S=defaults();save();delArm='';location.hash='nouveau';render();toast('Application réinitialisée.')}else{delArm='reset';render()}}
+});
+$('#modal').addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;if(b.dataset.act==='close-modal'){if(e.target===b||b.tagName==='BUTTON')closeModal();return}
+  if(b.dataset.act==='copy-ta'){copyText($('#'+b.dataset.t).value,'Message')}
+  else if(b.dataset.act==='relanced'){const x=S.quotes.find(z=>z.id===b.dataset.id);if(x){x.lastRelance=today();save()}closeModal();render();toast('Relance enregistrée.')}});
+function setPath(o,p,v){const k=p.split('.');let c=o;for(let i=0;i<k.length-1;i++)c=c[k[i]];c[k[k.length-1]]=v}
+function onField(e){
+  const el=e.target;if(!el||!el.dataset)return;
+  const q=curQuote();
+  if(el.dataset.q&&q){
+    let v=el.value;if(el.hasAttribute('data-bool'))v=el.checked;else if(el.hasAttribute('data-num')){v=parseFloat(String(v).replace(',','.'));if(!isFinite(v))v=0}
+    setPath(q,el.dataset.q,v);
+    if(el.dataset.q==='statut'){if(v==='envoye'&&!q.sentAt)q.sentAt=today();if(e.type==='change')render()}
+    updateTotals(q);scheduleSave();renderNav();return}
+  if(el.dataset.f&&q){const le=el.closest('.line');const l=q.lignes.find(x=>x.id===le.dataset.id);if(!l)return;let v=el.value;
+    if(el.dataset.f==='qte'||el.dataset.f==='pu'){v=parseFloat(String(v).replace(',','.'));if(!isFinite(v)||v<0)v=0;if(el.dataset.f==='pu')l.indicatif=false}
+    l[el.dataset.f]=v;refreshLine(l);updateTotals(q);scheduleSave();return}
+  if(el.dataset.prep&&q){q.prep[el.dataset.prep]=el.value.split('\n').map(s=>s.trim()).filter(Boolean);scheduleSave();return}
+  if(el.dataset.co){let v=el.value;if(el.hasAttribute('data-bool'))v=el.checked;else if(el.hasAttribute('data-num')){v=parseFloat(String(v).replace(',','.'));if(!isFinite(v))v=0}
+    S.company[el.dataset.co]=v;scheduleSave();
+    const miss=companyMissing(),n=$('#comp-n');if(n){n.textContent=(9-miss.length)+' sur 9';$('#comp-bar').style.width=((9-miss.length)/9*100)+'%';$('#comp-miss').textContent=miss.length?'Manque : '+miss.join(', ')+'.':'Toutes les mentions courantes sont renseignées.'}
+    if(e.type==='change'&&el.dataset.co==='franchiseTva')render();return}
+  if(el.dataset.price){const p=S.prices.find(x=>x.id===el.dataset.price);if(!p)return;const v=parseFloat(String(el.value).replace(',','.'));if(!isFinite(v)||v<0)return;p.pu=v;p.verified=true;
+    const bd=el.closest('.prow').querySelector('[data-badge]');if(bd)bd.remove();scheduleSave();return}
+  if(el.id==='pfilter'){const s=el.value.toLowerCase().trim();document.querySelectorAll('#plist .prow').forEach(r=>{r.hidden=s&&!r.dataset.text.includes(s)});document.querySelectorAll('#plist [data-cat]').forEach(c=>{c.hidden=!c.querySelector('.prow:not([hidden])')})}
+}
+app.addEventListener('input',onField);app.addEventListener('change',onField);
+app.addEventListener('change',e=>{if(e.target.id==='imp'){const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const o=JSON.parse(r.result);if(!o||o.v!==1||!Array.isArray(o.quotes)||!Array.isArray(o.prices))throw 0;S=o;S.company=Object.assign(defaults().company,S.company||{});save();render();toast('Sauvegarde importée.')}catch(_){toast('Fichier de sauvegarde non reconnu.')}};r.readAsText(f)}});
+app.addEventListener('click',e=>{const m=e.target.closest('#mic');if(!m||!caps.dictation)return;
+  if(caps.dictation.active()){caps.dictation.stop().catch(()=>{});return}
+  caps.dictation.start().catch(err=>{if(err&&err.code==='not_granted'){m.hidden=true;toast('Dictée refusée : saisissez le texte au clavier.')}else if(err&&err.code!=='stopped'&&err.code!=='dismissed')toast('La dictée n\'a pas démarré.')})});
+
+render();initCaps();
+})();
+</script>
+
+<script>
+if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost')){
+  window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
+}
+</script>
+</body>
+</html>
