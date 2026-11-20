@@ -1,0 +1,35 @@
+name: Check and package ArtisanIA V1
+on:
+  push:
+    branches: [feature/modules-v2]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'modules-v2.js'
+      - 'sw.js'
+      - 'manifest.webmanifest'
+      - 'tests/**'
+      - '.github/workflows/check-package.yml'
+jobs:
+  validate-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check JavaScript syntax
+        run: node --check modules-v2.js
+      - name: Check app integration and offline cache
+        run: python tests/check_app.py
+      - name: Build ZIP package
+        run: zip -r ArtisanIA-V1-gratuite.zip . -x '.git/*' '.github/*' 'tests/*'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ArtisanIA-V1-gratuite
+          path: ArtisanIA-V1-gratuite.zip
+          retention-days: 30
