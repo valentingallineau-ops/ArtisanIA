@@ -38,7 +38,7 @@ const { chromium } = require('playwright');
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.waitForSelector('#ai2-launch');
     await page.click('#ai2-launch');
-    await page.getByText('FA-OVERDUE-001', { exact: true }).waitFor();
+    await page.getByText('FA-OVERDUE-001', { exact: true }).first().waitFor();
     await page.click('[data-tab="invoices"]');
     await page.getByText('FA-TEST-001', { exact: true }).waitFor();
 
