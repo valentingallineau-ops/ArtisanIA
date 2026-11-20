@@ -51,6 +51,32 @@ const { chromium } = require('playwright');
       await page.getByText(title, { exact: true }).waitFor();
     }
 
+    // Client changes propagate to records linked by client identity.
+    await page.click('[data-tab="clients"]');
+    await page.click('[data-new="client"]');
+    await page.locator('[name="name"]').fill('Client lié test');
+    await page.locator('[name="address"]').fill('1 rue ancienne');
+    await page.locator('#ai2-form button[type="submit"]').click();
+    await page.click('[data-tab="jobs"]');
+    await page.click('[data-new="job"]');
+    await page.locator('[name="title"]').fill('Chantier lié test');
+    await page.locator('[name="client"]').fill('Client lié test');
+    await page.locator('[name="address"]').fill('1 rue ancienne');
+    await page.locator('#ai2-form button[type="submit"]').click();
+    await page.click('[data-tab="clients"]');
+    const linkedClient = page.locator('.item').filter({ hasText: 'Client lié test' }).first();
+    await linkedClient.locator('[data-edit="client"]').click();
+    await page.locator('[name="name"]').fill('Client renommé test');
+    await page.locator('[name="address"]').fill('2 rue nouvelle');
+    await page.locator('#ai2-form button[type="submit"]').click();
+    await page.click('[data-tab="jobs"]');
+    const linkedJob = page.locator('.item').filter({ hasText: 'Chantier lié test' }).first();
+    await linkedJob.locator('[data-edit="job"]').click();
+    await page.locator('[name="client"]').waitFor();
+    assert.equal(await page.locator('[name="client"]').inputValue(), 'Client renommé test');
+    assert.equal(await page.locator('[name="address"]').inputValue(), '2 rue nouvelle');
+    await page.locator('#ai2-cancel').click();
+
     // Invoice tracking and overdue detection.
     await page.click('[data-tab="invoices"]');
     await page.click('[data-new="invoice"]');
