@@ -1,4 +1,7 @@
-# ArtisanIA — version de travail V2
+# ArtisanIA — première version gratuite (V1)
+
+## Périmètre de la V1
+Cette version réunit le générateur de devis existant et un espace entreprise complémentaire. Elle fonctionne sans abonnement ni clé API. L'assistant est local et repose sur des règles simples : il ne s'agit pas encore d'une IA conversationnelle avancée.
 
 ## Lancer l'application
 - Ouvrir `index.html` dans un navigateur récent pour un premier essai.
