@@ -31,6 +31,20 @@ assert "invoices:[]" in module and "expenses:[]" in module
 assert "Factures à suivre" in module
 assert "if(!save())" in module
 
+assert 'class="top-in"' in html, "Launcher host element missing"
+assert "$('.top-in')?.append(launch)" in module, "Business-space launcher is not attached"
+assert html.count('<script src="modules-v2.js"></script>') == 1
+assert "quoteId:quoteKey" in module, "Quote-to-job migration key missing"
+assert all(label in module for label in ["Prospects", "Chantiers", "Planning", "Factures à suivre"])
+
+shell_match = re.search(r"const SHELL = \[(.*?)\];", worker, re.S)
+assert shell_match, "Offline cache shell list missing"
+shell_files = re.findall(r"['\"]([^'\"]+)['\"]", shell_match.group(1))
+for asset in shell_files:
+    if asset != "./":
+        assert (ROOT / asset).is_file(), f"Offline cache asset missing: {asset}"
+assert "modules-v2.js" in shell_files
+
 inline_scripts = re.findall(r"<script(?:\s[^>]*)?>(.*?)</script>", html, re.I | re.S)
 assert len(inline_scripts) >= 2, f"Expected inline application scripts, got {len(inline_scripts)}"
 for number, source in enumerate(inline_scripts, 1):
@@ -41,4 +55,4 @@ for number, source in enumerate(inline_scripts, 1):
 
 subprocess.run(["node", "--check", str(ROOT / "modules-v2.js")], check=True)
 subprocess.run(["node", "--check", str(ROOT / "sw.js")], check=True)
-print("Static checks passed: JavaScript syntax, module loader, offline cache, separate storage, quote migration and guarded saves.")
+print("Static checks passed: scripts, launcher, PWA assets, separate storage, quote migration, modules and guarded saves.")
