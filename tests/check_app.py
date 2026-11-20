@@ -1,6 +1,7 @@
 from html.parser import HTMLParser
 from pathlib import Path
 import re
+import json
 import subprocess
 import tempfile
 
@@ -8,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 html = (ROOT / "index.html").read_text(encoding="utf-8")
 module = (ROOT / "modules-v2.js").read_text(encoding="utf-8")
 worker = (ROOT / "sw.js").read_text(encoding="utf-8")
+manifest = json.loads((ROOT / "manifest.webmanifest").read_text(encoding="utf-8"))
 
 class Scripts(HTMLParser):
     def __init__(self):
@@ -23,6 +25,12 @@ parser = Scripts()
 parser.feed(html)
 assert parser.sources.count("modules-v2.js") == 1, parser.sources
 assert "modules-v2.js" in worker.split("const SHELL", 1)[1].split(";", 1)[0]
+assert "ArtisanIA" in html.split("</head>", 1)[0]
+assert "<title>" in html.split("</head>", 1)[0]
+assert "<title>" not in html.split("</head>", 1)[1]
+assert "artisans" in manifest["description"].lower()
+assert manifest["lang"] == "fr"
+assert all((ROOT / icon["src"]).is_file() for icon in manifest["icons"])
 assert "artisania.business.v2" in module
 assert "artisania.v1" in html, "Original quote storage key missing"
 assert "function migrateQuotes" in module
