@@ -35,7 +35,7 @@ jobs:
       - name: Run browser smoke test
         run: node tests/browser_smoke.cjs
       - name: Build ZIP package
-        run: zip -r ArtisanIA-V1-gratuite.zip . -x '.git/*' '.github/*' 'tests/*' 'node_modules/*' 'package*.json'
+        run: zip ArtisanIA-V1-gratuite.zip index.html modules-v2.js sw.js manifest.webmanifest icon-192.png icon-512.png icon-maskable-512.png apple-touch-icon.png README_V2.md
       - uses: actions/upload-artifact@v4
         with:
           name: ArtisanIA-V1-gratuite
