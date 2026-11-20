@@ -29,6 +29,7 @@ assert "function migrateQuotes" in module
 assert "function runCommand" in module
 assert "invoices:[]" in module and "expenses:[]" in module
 assert "Factures à suivre" in module
+assert "overdueInvoices=unpaid.filter" in module and "Factures échues" in module
 assert "if(!save())" in module
 
 assert 'class="top-in"' in html, "Launcher host element missing"
