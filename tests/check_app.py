@@ -15,7 +15,10 @@ class Scripts(HTMLParser):
     def __init__(self):
         super().__init__()
         self.sources = []
+        self.title_count = 0
     def handle_starttag(self, tag, attrs):
+        if tag == "title":
+            self.title_count += 1
         if tag == "script":
             src = dict(attrs).get("src")
             if src:
@@ -26,8 +29,7 @@ parser.feed(html)
 assert parser.sources.count("modules-v2.js") == 1, parser.sources
 assert "modules-v2.js" in worker.split("const SHELL", 1)[1].split(";", 1)[0]
 assert "ArtisanIA" in html.split("</head>", 1)[0]
-assert "<title>" in html.split("</head>", 1)[0]
-assert "<title>" not in html.split("</head>", 1)[1]
+assert parser.title_count == 1, f"Expected one real HTML title element, got {parser.title_count}"
 assert "artisans" in manifest["description"].lower()
 assert manifest["lang"] == "fr"
 assert all((ROOT / icon["src"]).is_file() for icon in manifest["icons"])
