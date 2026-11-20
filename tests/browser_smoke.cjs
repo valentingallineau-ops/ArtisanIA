@@ -26,9 +26,19 @@ const { chromium } = require('playwright');
     await page.locator('#ai2-form button[type="submit"]').click();
     await page.getByText('FA-TEST-001', { exact: true }).waitFor();
 
+    await page.click('[data-new="invoice"]');
+    await page.locator('[name="number"]').fill('FA-OVERDUE-001');
+    await page.locator('[name="client"]').fill('Jean Martin');
+    await page.locator('[name="invoiceDate"]').fill('2026-09-01');
+    await page.locator('[name="dueDate"]').fill('2026-10-01');
+    await page.locator('[name="amount"]').fill('350');
+    await page.locator('[name="status"]').selectOption({ label: 'Envoyée' });
+    await page.locator('#ai2-form button[type="submit"]').click();
+
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.waitForSelector('#ai2-launch');
     await page.click('#ai2-launch');
+    await page.getByText('FA-OVERDUE-001', { exact: true }).waitFor();
     await page.click('[data-tab="invoices"]');
     await page.getByText('FA-TEST-001', { exact: true }).waitFor();
 
@@ -37,7 +47,7 @@ const { chromium } = require('playwright');
     await mobile.waitForSelector('#ai2-launch');
     await mobile.click('#ai2-launch');
     await mobile.locator('#ai2-root.open').waitFor();
-    console.log('Browser smoke test passed: assistant, client creation, invoice tracking, persistence and mobile layout.');
+    console.log('Browser smoke test passed: assistant, client creation, invoice tracking, overdue detection, persistence and mobile layout.');
   } finally {
     await browser.close();
   }
