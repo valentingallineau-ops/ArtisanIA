@@ -26,6 +26,14 @@ jobs:
         run: node --check modules-v2.js
       - name: Check app integration and offline cache
         run: python tests/check_app.py
+      - name: Install browser test dependencies
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Start local preview server
+        run: python -m http.server 4173 > /tmp/artisania-http.log 2>&1 &
+      - name: Run browser smoke test
+        run: node tests/browser_smoke.cjs
       - name: Build ZIP package
         run: zip -r ArtisanIA-V1-gratuite.zip . -x '.git/*' '.github/*' 'tests/*'
       - uses: actions/upload-artifact@v4
