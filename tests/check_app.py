@@ -29,7 +29,7 @@ assert "function migrateQuotes" in module
 assert "function runCommand" in module
 assert "if(!save())" in module
 
-inline_scripts = re.findall(r"<script(?:\\s[^>]*)?>(.*?)</script>", html, re.I | re.S)
+inline_scripts = re.findall(r"<script(?:\s[^>]*)?>(.*?)</script>", html, re.I | re.S)
 assert len(inline_scripts) >= 2, f"Expected inline application scripts, got {len(inline_scripts)}"
 for number, source in enumerate(inline_scripts, 1):
     with tempfile.NamedTemporaryFile("w", suffix=".js", encoding="utf-8") as temp:
