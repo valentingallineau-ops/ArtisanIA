@@ -379,7 +379,17 @@ function docHTML(q){
 function standalone(q){
   const css=Array.from(document.styleSheets).flatMap(s=>{try{return Array.from(s.cssRules)}catch(_){return[]}}).filter(r=>r.cssText&&r.cssText.indexOf('.doc')>-1).map(r=>r.cssText).join('\n');
   return'<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Devis '+esc(q.num)+'</title><style>body{margin:0;background:#eef1f4;padding:20px;font-family:Inter,Arial,sans-serif}.hint{max-width:794px;margin:0 auto 12px;font:14px Arial,sans-serif;color:#33414d}'+css
-   +'@page{margin:12mm}@media print{body{background:#fff;padding:0}.hint{display:none}.doc{border:0;max-width:none;padding:0;min-width:0}}</style></head><body><p class="hint">Pour obtenir un PDF : Imprimer (Ctrl+P ou Cmd+P), puis « Enregistrer au format PDF ».</p>'+docHTML(q)+'</body></html>'}
+   +'@page{margin:12mm}@media print{body{background:#fff;padding:0}.hint{display:none}.doc{border:0;max-width:none;padding:0;min-width:0}}</style></head><body><p class="hint">Pour obtenir un PDF : Imprimer (Ctrl+P ou Cmd+P), puis « Enregistrer au format PDF ».</p>'+docHTML(q)+'
+<!-- ArtisanIA V2 responsive UX layer: same interface adapts fluidly to desktop and mobile -->
+<style>
+/* V2 responsive foundations — additive, preserves existing screens and data logic */
+.wrap,.top-in{max-width:1180px}
+@media(min-width:900px){body{padding-bottom:32px}main{padding-top:18px}header.top{padding-block:14px}.top-in{gap:24px}nav.tabs a{padding:10px 13px}.page-h{margin:14px 0 8px}.card{padding:20px}.grid2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:719px){body{font-size:15px;padding-bottom:calc(86px + env(safe-area-inset-bottom,0px))}header.top{padding-block:8px}.top-in{gap:10px}.brand{font-size:21px}.card{padding:14px}.btn{min-height:44px;padding:10px 13px}.btn.sm{min-height:40px}.icon-btn{width:40px;height:40px}input,select,textarea{font-size:16px;min-height:42px}.page-h{align-items:flex-start}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats .stat:last-child:nth-child(odd){grid-column:1/-1}nav.tabs a{min-height:48px}}
+@media(min-width:1200px){.wrap,.top-in{max-width:1320px}}
+</style>
+
+</body></html>'}
 function quoteText(q){
   const c=S.company,t=totals(q);
   const L=['DEVIS '+q.num+' du '+fdate(q.date),c.nom,'','Client : '+q.client.nom,'Chantier : '+(q.chantier.titre||'')+(q.client.adresse?' ('+q.client.adresse.replace(/\n/g,', ')+')':''),''];
