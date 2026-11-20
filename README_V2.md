@@ -13,10 +13,11 @@
 - Ne pas effacer les données du navigateur sans avoir exporté les deux espaces de données.
 
 ## Modules ajoutés
-Vue d'ensemble, assistant local, clients, prospects, chantiers, tâches, fournisseurs, matériaux, planning et notes.
+Vue d'ensemble, assistant local, clients, prospects, chantiers, tâches, fournisseurs, matériaux, planning, notes, suivi des factures et dépenses.
 Les données des modules sont enregistrées dans le navigateur. L'assistant comprend uniquement quelques formulations simples ; il n'utilise pas encore de modèle d'IA distant.
 
 ## Limites connues de cette version
+- Le suivi des factures et dépenses est un registre simple : il ne génère pas encore de facture PDF conforme et ne remplace pas un logiciel comptable.
 - Pas de compte utilisateur ni de synchronisation cloud.
 - Pas de connexion automatique aux fournisseurs.
 - Pas d'envoi automatique de mails/SMS ni de notifications garanties lorsque le navigateur est fermé.
