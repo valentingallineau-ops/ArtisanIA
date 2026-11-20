@@ -27,6 +27,8 @@ assert "artisania.business.v2" in module
 assert "artisania.v1" in html, "Original quote storage key missing"
 assert "function migrateQuotes" in module
 assert "function runCommand" in module
+assert "invoices:[]" in module and "expenses:[]" in module
+assert "Factures à suivre" in module
 assert "if(!save())" in module
 
 inline_scripts = re.findall(r"<script(?:\s[^>]*)?>(.*?)</script>", html, re.I | re.S)
