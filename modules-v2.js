@@ -148,8 +148,8 @@ function brainExtractActions(raw){
   .replace(/^\s*(apres demain|demain|aujourd hui|20\d{2}-\d{2}-\d{2}|dimanche|lundi|mardi|mercredi|jeudi|vendredi|samedi)\s*[,;:.-]?\s*/i,'')
   .replace(/^\s*(rappelle? moi|rappeler|pense a|ne pas oublier|je dois|il faut(?: que je)?|relancer|relance|recontacter)\s*/i,'')
   .replace(/^\s*(de|d)\s*/i,'')
-  .replace(/\s+(apres demain|demain|aujourd hui|20\d{2}-\d{2}-\d{2}|dimanche|lundi|mardi|mercredi|jeudi|vendredi|samedi)\s*.*$/i,'')
-  .replace(/\s+a?\s*\d{1,2}\s*(?:h\s*\d{0,2}|:\s*\d{2})\s*.*$/i,'')
+  .replace(/\b(apres demain|demain|aujourd hui|20\d{2}-\d{2}-\d{2}|dimanche|lundi|mardi|mercredi|jeudi|vendredi|samedi)(?: prochain)?\b/gi,' ')
+  .replace(/\s+a?\s*\d{1,2}\s*(?:h\s*\d{0,2}|:\s*\d{2})\b/gi,'')
   .replace(/[.!?]+$/,'').trim();
  const parts=text.split(/\s+(?:et puis|puis|et)\s+/i).map(x=>x.trim()).filter(Boolean);
  return parts.map(x=>x.replace(/^(?:de|d)\s*/i,'')).filter(Boolean).map(x=>x.charAt(0).toLocaleUpperCase('fr')+x.slice(1));
