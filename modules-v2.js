@@ -168,12 +168,12 @@ function runCommand(){
  let memory;try{memory=brainMemory()}catch(error){brainShow('<div class="banner warn">'+esc(error.message)+'</div>');return}
  const normalized=brainNormalize(raw);
  const rules=[
-  {intent:'reminder',re:/\\b(?:rappel(?:le|er)?|rappelle\\s+moi|appelle?r|appeler|ne\\s+pas\\s+oublier|pense\\s+a|je\\s+dois\\s+(?:appeler|contacter|verifier|faire\\s+le\\s+point)|il\\s+faut\\s+que\\s+je\\s+(?:appelle|contacte|verifie)|tu\\s+peux\\s+me\\s+rappeler)\\b/,label:'Préparer un rappel'},
-  {intent:'follow_up',re:/\\b(relancer|relance|recontacter)\\b/,label:'Préparer une relance'},
-  {intent:'schedule',re:/\\b(rendez vous|rdv|visite)\\b/,label:'Rendez-vous détecté'},
-  {intent:'delivery',re:/\\b(livre|livraison|livrer|arrive)\\b/,label:'Préparer une livraison'},
-  {intent:'payment_received',re:/\\b(recu|recois|acompte|paiement|paye)\\b/,label:'Information de paiement détectée'},
-  {intent:'job_update',re:/\\b(commence|commencer|demarre|demarrer|termine|terminer|finis|fini|avance|avancer|reprend|reprendre|bloque|bloquer|retard)\\b/,label:'Préparer un point de chantier'}
+  {intent:'reminder',re:/\b(?:rappel(?:le|er)?|rappelle\s+moi|appelle?r|appeler|ne\s+pas\s+oublier|pense\s+a|je\s+dois\s+(?:appeler|contacter|verifier|faire\s+le\s+point)|il\s+faut\s+que\s+je\s+(?:appelle|contacte|verifie)|tu\s+peux\s+me\s+rappeler)\b/,label:'Préparer un rappel'},
+  {intent:'follow_up',re:/\b(relancer|relance|recontacter)\b/,label:'Préparer une relance'},
+  {intent:'schedule',re:/\b(rendez vous|rdv|visite)\b/,label:'Rendez-vous détecté'},
+  {intent:'delivery',re:/\b(livre|livraison|livrer|arrive)\b/,label:'Préparer une livraison'},
+  {intent:'payment_received',re:/\b(recu|recois|acompte|paiement|paye)\b/,label:'Information de paiement détectée'},
+  {intent:'job_update',re:/\b(commence|commencer|demarre|demarrer|termine|terminer|finis|fini|avance|avancer|reprend|reprendre|bloque|bloquer|retard)\b/,label:'Préparer un point de chantier'}
  ];
  const rule=rules.find(x=>x.re.test(normalized));if(!rule){if(brainRenderMemorySearch(memory,raw))return;brainShow('<div class="card"><h2>Je n’ai pas identifié d’action ni retrouvé de fiche précise</h2><p class="muted">Tu peux demander par exemple : « Où en est le chantier Toiture ? » ou « Rappelle-moi d’appeler M. Dupont demain ».</p><p class="muted small">Aucune donnée n’a été modifiée.</p></div>');return}
  if(rule.intent==='schedule'||rule.intent==='payment_received'){brainShow('<div class="card"><h2>'+esc(rule.label)+'</h2><p class="muted">Cette demande sera prise en charge dans une prochaine étape. Aucune donnée n’a été modifiée.</p></div>');return}
