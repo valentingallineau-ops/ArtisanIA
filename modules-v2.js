@@ -220,7 +220,7 @@ function brainExtractActions(raw){
 }
 function brainMoney(value){const m=String(value||'').match(/(\d{1,3}(?:[ .]\d{3})*(?:[,.]\d{1,2})?|\d+(?:[,.]\d{1,2})?)\s*(?:€|euros?)/i);if(!m)return null;const n=Number(m[1].replace(/[ .]/g,'').replace(',','.'));return Number.isFinite(n)&&n>0?Math.round(n*100)/100:null;}
 function invoicePaidAmount(invoice){const p=Array.isArray(invoice.payments)?invoice.payments:[];const fromHistory=p.reduce((n,x)=>n+(Number(x.amount)||0),0);return Math.max(fromHistory,Math.max(0,Number(invoice.paidAmount)||0));}
-function invoiceRemaining(invoice){return Math.max(0,Math.round(((Number(invoice.amount)||0)-invoicePaidAmount(invoice))*100)/100);}
+function invoiceRemaining(invoice){const total=typeof invoice.amount==='number'?invoice.amount:(brainMoney(invoice.amount)||0);return Math.max(0,Math.round((total-invoicePaidAmount(invoice))*100)/100);}
 function runCommand(){
  const raw=$('#ai2-command',root)?.value.trim();if(!raw)return;pendingBrainProposal=null;
  let memory;try{memory=brainMemory()}catch(error){brainShow('<div class="banner warn">'+esc(error.message)+'</div>');return}
@@ -286,12 +286,12 @@ function showRecordDetail(type,id){
  const title=record[titleKey]||names[type];
  const client=record.clientId?db.clients.find(x=>String(x.id)===String(record.clientId)):db.clients.find(x=>String(x.name||'').trim().toLocaleLowerCase('fr')===String(record.client||'').trim().toLocaleLowerCase('fr'));
  const labelMap={number:'Numéro de facture',invoiceDate:'Date de facture',dueDate:'Échéance',amount:'Montant',name:'Nom',address:'Adresse',phone:'Téléphone',email:'E-mail',notes:'Notes',origin:'Origine',need:'Besoin exprimé',status:'Statut',nextDate:'Prochaine relance',title:'Intitulé',client:'Client associé',start:'Début prévu',end:'Fin prévue',date:'Date',priority:'Priorité',job:'Chantier associé',category:'Catégorie',contact:'Contact',website:'Site internet',terms:'Conditions / tarifs',reference:'Référence',unit:'Unité',price:'Prix unitaire',supplier:'Fournisseur',updated:'Mise à jour',time:'Heure',place:'Lieu',content:'Contenu'};
- const rows=Object.entries(record).filter(([k,v])=>!['id','clientId','jobId','actions'].includes(k)&&v!==''&&v!==null&&v!==undefined).map(([k,v])=>{
+ const rows=Object.entries(record).filter(([k,v])=>!['id','clientId','jobId','actions','payments','paidAmount'].includes(k)&&v!==''&&v!==null&&v!==undefined).map(([k,v])=>{
   let value=String(v);
   if(k==='client'&&client)value=client.name;
   if(k==='amount'||k==='price')value=value+' €';
   return '<div class="ai2-record-detail-row"><span class="muted">'+esc(labelMap[k]||k)+'</span><strong>'+esc(value)+'</strong></div>';
- }).join('');
+ }).join('')+(type==='invoice'?(Array.isArray(record.payments)&&record.payments.length?'<div class="ai2-record-detail-row"><span class="muted">Historique des paiements</span><strong>'+record.payments.map(p=>esc(p.date||'Date inconnue')+' · '+esc((Number(p.amount)||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR'}))).join('<br>')+'</strong></div>':'')+(record.amount!==undefined?'<div class="ai2-record-detail-row"><span class="muted">Total déjà réglé</span><strong>'+esc(invoicePaidAmount(record).toLocaleString('fr-FR',{style:'currency',currency:'EUR'}))+'</strong></div><div class="ai2-record-detail-row"><span class="muted">Reste à payer</span><strong>'+esc(invoiceRemaining(record).toLocaleString('fr-FR',{style:'currency',currency:'EUR'}))+'</strong></div>':''):'');
  const prospectAction=type==='prospect'&&!['Converti','Perdu'].includes(record.status)?'<button class="btn primary" data-convert="'+esc(record.id)+'">Convertir en client</button>':'';
  $('#ai2-view',root).innerHTML='<div class="ai2-module-head"><div><p class="muted">'+esc(names[type])+'</p><h1>'+esc(title)+'</h1></div><div class="ai2-task-detail-tools"><button class="btn" id="ai2-record-back">Retour à la liste</button><button class="btn" data-edit="'+type+'" data-id="'+esc(record.id)+'">Modifier</button><button class="btn danger" data-del="'+type+'" data-id="'+esc(record.id)+'">Supprimer</button></div></div><div class="card ai2-record-detail"><div class="ai2-record-detail-head"><span class="ai2-task-urgency '+(/termin|payée|converti/i.test(record.status||'')?'done':'normal')+'">'+esc(record.status||'Fiche enregistrée')+'</span>'+(client&&type!=='client'?'<span class="muted">Client : '+esc(client.name)+'</span>':'')+'</div>'+rows+'</div><div class="row ai2-record-detail-actions">'+prospectAction+'</div>';
  $('#ai2-record-back',root).onclick=()=>{tab=detailReturnTab;render()};
