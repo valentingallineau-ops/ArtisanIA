@@ -2,17 +2,18 @@
 
 > Liste vivante : chaque nouvelle idée, recherche, retour d'artisan et test utilisateur sera ajouté ici. Priorité à la simplicité, aux gains de temps concrets, à la fiabilité et à la validation avant d'ajouter des fonctions.
 
-## V2 — Interface réellement responsive (en cours)
+## V2 — Interface réellement responsive (implémentation terminée, validation manuelle finale à faire)
 - [x] Une seule interface adaptative ordinateur/tablette/téléphone, sans deux versions distinctes.
 - [x] Desktop : mieux exploiter l'espace, largeur de travail plus confortable et navigation claire.
 - [x] Première amélioration des listes et formulaires : actions adaptées au mobile, formulaires en 2 colonnes sur grand écran.
 - [x] Mobile : commandes faciles à toucher, champs confortables, navigation adaptée et listes/formulaires empilés.
 - [x] Première refonte de l'accueil : alertes, tâches/relances/factures à suivre et raccourcis rapides (à affiner après tests utilisateurs).
-- [ ] Audit page par page des menus, actions, doublons et étapes superflues; tester chaque flux sur petits et grands écrans (en cours).
-- [ ] Préserver les fonctionnalités, données, import/export, fonctionnement hors ligne et compatibilité des sauvegardes.
-- [ ] Tester la compréhension sans tutoriel : libellés évidents, actions visibles, retours de confirmation et erreurs explicites.
+- [x] Audit des modules et actions : menus, raccourcis, recherche, formulaires, statuts, suppressions et états vides revus/corrigés.
+- [ ] Validation manuelle finale sur ordinateur et téléphone par l'utilisateur (affichage, données réelles, parcours habituels).
+- [x] Préserver les fonctionnalités existantes, les données, import/export JSON, stockage local et fonctionnement hors ligne (contrôles automatisés).
+- [x] Améliorer la compréhension sans tutoriel : libellés, actions visibles, confirmations de suppression, messages de retour et erreurs de sauvegarde/import.
 
-## Assistant et capture d'information (vision différenciante, progressivement)
+## V3+ — Assistant et capture d'information (vision différenciante, progressivement)
 - [ ] Capture rapide d'une note / idée / information en langage naturel.
 - [ ] Identifier le client, chantier, document ou contexte correspondant et proposer un classement.
 - [ ] Transformer l'information en actions (tâche, rappel, relance, vérification) avec validation utilisateur.
