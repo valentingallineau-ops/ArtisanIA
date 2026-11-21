@@ -3,11 +3,12 @@
 > Liste vivante : chaque nouvelle idée, recherche, retour d'artisan et test utilisateur sera ajouté ici. Priorité à la simplicité, aux gains de temps concrets, à la fiabilité et à la validation avant d'ajouter des fonctions.
 
 ## V2 — Interface réellement responsive (en cours)
-- [ ] Une seule interface adaptative ordinateur/tablette/téléphone, sans deux versions distinctes.
-- [ ] Desktop : mieux exploiter l'espace, largeur de travail plus confortable, navigation claire, formulaires et listes moins étroits.
-- [ ] Mobile : commandes faciles à toucher, champs sans zoom automatique, navigation et contenus confortables, éviter débordements.
-- [ ] Repenser progressivement l'accueil comme tableau de bord utile : priorités, tâches à faire, échéances, raccourcis et activité récente.
-- [ ] Audit page par page des menus, actions, doublons et étapes superflues; tester chaque flux sur petits et grands écrans.
+- [x] Une seule interface adaptative ordinateur/tablette/téléphone, sans deux versions distinctes.
+- [x] Desktop : mieux exploiter l'espace, largeur de travail plus confortable et navigation claire.
+- [x] Première amélioration des listes et formulaires : actions adaptées au mobile, formulaires en 2 colonnes sur grand écran.
+- [x] Mobile : commandes faciles à toucher, champs confortables, navigation adaptée et listes/formulaires empilés.
+- [x] Première refonte de l'accueil : alertes, tâches/relances/factures à suivre et raccourcis rapides (à affiner après tests utilisateurs).
+- [ ] Audit page par page des menus, actions, doublons et étapes superflues; tester chaque flux sur petits et grands écrans (en cours).
 - [ ] Préserver les fonctionnalités, données, import/export, fonctionnement hors ligne et compatibilité des sauvegardes.
 - [ ] Tester la compréhension sans tutoriel : libellés évidents, actions visibles, retours de confirmation et erreurs explicites.
 
