@@ -46,17 +46,26 @@ La mémoire distingue **faits confirmés**, **hypothèses** et **suggestions**. 
 - « J'ai peut-être oublié de relancer le client » → question ou suggestion, pas action automatique.
 - Phrase vague sans destinataire ou date → demander une précision, ne pas inventer.
 
+## Mémoire structurée — première implémentation
+- Stockage séparé et versionné : `artisania.brain.memory.v1`.
+- Import non destructif depuis la structure V2 : les données sources ne sont ni supprimées ni modifiées.
+- Chaque fiche mémorisée conserve son type, son identifiant source, ses données d'origine, sa provenance, son niveau de confiance, son statut et ses liens.
+- Les liens client/chantier/fournisseur sont créés seulement lorsqu'une correspondance unique et exacte est trouvée; les ambiguïtés restent sans lien.
+- Un nouvel import est idempotent : il n'écrase pas une mémoire déjà enrichie.
+- La mémoire est actuellement un module autonome testé; elle n'est pas encore branchée à l'interface de l'application.
+
 ## Étapes suivantes
-1. Écrire et tester le moteur local de compréhension (règles de base, sans IA externe).
-2. Construire une mémoire persistante structurée compatible avec les données actuelles et export/import.
-3. Concevoir une interface conversationnelle qui affiche contexte utilisé et actions proposées.
+1. [x] Écrire et tester le moteur local de compréhension (règles de base, sans IA externe).
+2. [x] Construire le premier magasin de mémoire structurée et l'import non destructif des données V2.
+3. Concevoir une interface conversationnelle qui affiche le contexte utilisé et les actions proposées.
 4. Valider sur un panel de scénarios réels d'artisans avant de brancher un modèle IA externe.
-5. Après validation de l'utilité et de la demande, seulement alors étudier coût et intégration d'API.
+5. Après validation de l'utilité et de la demande, seulement alors étudier coût et intégration d'API IA.
 
 ## Statut
 - [x] V2 responsive et fiabilisation des modules — développement terminé, validation manuelle PC/mobile à faire.
 - [x] Branche V3 isolée, basée sur la branche V2 de travail.
 - [x] Architecture et garde-fous documentés.
-- [ ] Moteur local de compréhension + tests.
-- [ ] Mémoire structurée et migration non destructive.
+- [x] Moteur local de compréhension + tests.
+- [x] Première mémoire structurée autonome + import V2 non destructif.
+- [ ] Branchement progressif de la mémoire au contexte de l'application.
 - [ ] Interface cerveau et tests utilisateurs.
