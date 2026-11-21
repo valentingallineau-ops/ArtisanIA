@@ -125,8 +125,15 @@ function brainRenderMemorySearch(memory,message){
  return true;
 }
 function brainDate(raw){
- const t=brainNormalize(raw),m=String(raw).match(/\b(20\d{2}-\d{2}-\d{2})\b/);
- if(m){const check=new Date(m[1]+'T12:00:00');if(!Number.isNaN(check.getTime())&&check.toISOString().slice(0,10)===m[1])return m[1];return ''}
+ const t=brainNormalize(raw),source=String(raw||'');
+ const validDate=(year,month,day)=>{const d=new Date(year,month-1,day,12,0,0,0);return d.getFullYear()===year&&d.getMonth()===month-1&&d.getDate()===day?[year,String(month).padStart(2,'0'),String(day).padStart(2,'0')].join('-'):''};
+ let m=source.match(/\b(20\d{2})-(\d{2})-(\d{2})\b/);
+ if(m)return validDate(Number(m[1]),Number(m[2]),Number(m[3]));
+ m=source.match(/\b(\d{1,2})[\/.-](\d{1,2})[\/.-](20\d{2})\b/);
+ if(m)return validDate(Number(m[3]),Number(m[2]),Number(m[1]));
+ const months={janvier:1,fevrier:2,mars:3,avril:4,mai:5,juin:6,juillet:7,aout:8,septembre:9,octobre:10,novembre:11,decembre:12};
+ m=t.match(/\b(\d{1,2})\s+(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\s+(20\d{2})\b/);
+ if(m)return validDate(Number(m[3]),months[m[2]],Number(m[1]));
  const d=new Date();d.setHours(12,0,0,0);
  if(t.includes('apres demain'))d.setDate(d.getDate()+2);
  else if(t.includes('demain'))d.setDate(d.getDate()+1);
