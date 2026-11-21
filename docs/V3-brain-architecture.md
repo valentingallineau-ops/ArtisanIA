@@ -52,7 +52,8 @@ La mémoire distingue **faits confirmés**, **hypothèses** et **suggestions**. 
 - Chaque fiche mémorisée conserve son type, son identifiant source, ses données d'origine, sa provenance, son niveau de confiance, son statut et ses liens.
 - Les liens client/chantier/fournisseur sont créés seulement lorsqu'une correspondance unique et exacte est trouvée; les ambiguïtés restent sans lien.
 - Un nouvel import est idempotent : il n'écrase pas une mémoire déjà enrichie.
-- La mémoire est actuellement un module autonome testé; elle n'est pas encore branchée à l'interface de l'application.
+- Un résolveur de contexte local retrouve les fiches nommées et leurs relations explicites; les homonymes sont signalés comme ambigus au lieu d'être choisis automatiquement.
+- La mémoire et le résolveur de contexte sont actuellement des modules autonomes testés; ils ne sont pas encore branchés à l'interface de l'application.
 
 ## Étapes suivantes
 1. [x] Écrire et tester le moteur local de compréhension (règles de base, sans IA externe).
@@ -67,5 +68,6 @@ La mémoire distingue **faits confirmés**, **hypothèses** et **suggestions**. 
 - [x] Architecture et garde-fous documentés.
 - [x] Moteur local de compréhension + tests.
 - [x] Première mémoire structurée autonome + import V2 non destructif.
+- [x] Résolution locale du contexte et détection des homonymes.
 - [ ] Branchement progressif de la mémoire au contexte de l'application.
 - [ ] Interface cerveau et tests utilisateurs.
