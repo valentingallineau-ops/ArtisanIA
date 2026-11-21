@@ -25,6 +25,22 @@
 @media(max-width:719px){body{font-size:15px;padding-bottom:calc(86px + env(safe-area-inset-bottom,0px))}header.top{padding-block:8px}.top-in{gap:10px}.brand{font-size:21px}.card{padding:14px}.btn{min-height:44px;padding:10px 13px}.btn.sm{min-height:40px}.icon-btn{width:40px;height:40px}input,select,textarea{font-size:16px;min-height:42px}.page-h{align-items:flex-start}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats .stat:last-child:nth-child(odd){grid-column:1/-1}nav.tabs a{min-height:48px}}
 @media(min-width:1200px){.wrap,.top-in{max-width:1320px}}
 </style>
+
+<style>
+/* V2 desktop width correction: the base stylesheet sets .wrap/.top-in to 860px.
+   Override it after the base styles; mobile layout remains unchanged. */
+@media (min-width: 900px) {
+  .wrap, .top-in {
+    width: calc(100% - 48px);
+    max-width: 1320px;
+  }
+}
+@media (min-width: 1500px) {
+  .wrap, .top-in {
+    max-width: 1440px;
+  }
+}
+</style>
 </head>
 <body>
 <style>
