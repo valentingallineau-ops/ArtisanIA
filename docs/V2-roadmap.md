@@ -43,14 +43,14 @@ La V1 publiée reste stable pendant les développements suivants.
 - [x] Résolution locale du contexte et tests automatisés de la fondation.
 - [x] Premier orchestrateur réunissant compréhension, mémoire et proposition d'action sans exécution automatique.
 - [ ] Capture d'informations en langage naturel depuis l'application.
-- [ ] Consultation de la mémoire et affichage des éléments de contexte retrouvés.
+- [x] Première consultation de la mémoire et affichage des fiches liées retrouvées par recherche exacte.
 - [ ] Propositions de création de tâches et rappels, avec dates clarifiées.
-- [ ] Détection des oublis et échéances, avec explication et contrôle de l'artisan.
-- [ ] Résumés d'activité utiles.
-- [ ] Recherche intelligente en langage naturel.
+- [x] Première détection des tâches en retard, sans échéance et des relances prospects échues, avec explication et contrôle de l'artisan.
+- [x] Premier point de situation dans l'Assistant : tâches ouvertes, chantiers actifs, rendez-vous à venir et éléments à vérifier.
+- [x] Première recherche en langage naturel dans la mémoire locale, avec détection des homonymes et affichage des fiches liées (correspondance exacte).
 - [ ] Validation sur des scénarios réels et retours d'artisans.
 
-**État :** fondations techniques et orchestrateur local en place, avec 23 tests réussis sur le dernier contrôle. Ils ne sont pas encore intégrés à l'interface métier. Les règles locales actuelles ne constituent pas encore une IA générative.
+**État :** fondations techniques et orchestrateur local en place. L'interface V3 est intégrée progressivement : propositions de tâches/rappels à confirmer, recherche exacte dans la mémoire, affichage du contexte lié et premier point de situation. La compréhension reste déterministe et limitée à des formulations prises en charge ; elle ne constitue pas encore une IA générative. Les validations manuelles et les scénarios réels restent à terminer.
 
 ## V4 — Documents et administration automatisés
 
