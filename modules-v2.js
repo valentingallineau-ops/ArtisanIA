@@ -44,7 +44,7 @@ expenses:()=>section('Dépenses','expense','Intitulé de la dépense','title',['
 };
 function assistantView(){return '<div class="ai2-module-head"><div><h1>Assistant ArtisanIA</h1><p class="muted">Décris ce que tu veux noter ou organiser. L’assistant retrouve le contexte et prépare une proposition à vérifier.</p></div><span class="pill blue">Cerveau local V3</span></div><div class="card ai2-brain-compose"><label class="lbl" for="ai2-command">Que veux-tu dire à ArtisanIA ?</label><textarea id="ai2-command" rows="4" placeholder="Ex. : Rappelle-moi d’appeler M. Dupont demain pour son chantier de toiture."></textarea><div class="row" style="margin-top:12px"><button class="btn primary" id="ai2-run">Analyser ma demande</button><span class="muted small">Aucune action ne sera effectuée sans ta confirmation.</span></div></div><div id="ai2-result" class="ai2-brain-result" aria-live="polite"></div><div class="card" style="margin-top:14px"><h2>Comment fonctionne le cerveau ?</h2><p class="muted">ArtisanIA analyse la phrase localement, recherche les fiches correspondantes dans la mémoire de l’entreprise et prépare une action. Les noms ambigus doivent être précisés. Aucune donnée n’est modifiée pendant l’analyse.</p></div>'}
 let pendingBrainProposal=null;
-function brainNormalize(value){return String(value??'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().replace(/[’']/g,' ').replace(/\\brapel\\b/g,'rappel').replace(/\\bapeller\\b|\\bappeller\\b|\\bapeler\\b/g,'appeler').replace(/\\bveriffier\\b/g,'verifier').replace(/[^a-z0-9€.,!?\\s-]/g,' ').replace(/-/g,' ').replace(/\\s+/g,' ').trim()}
+function brainNormalize(value){return String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[’']/g,' ').replace(/\brapel\b/g,'rappel').replace(/\bapeller\b|\bappeller\b|\bapeler\b/g,'appeler').replace(/\bveriffier\b/g,'verifier').replace(/[^a-z0-9€.,!?\s-]/g,' ').replace(/-/g,' ').replace(/\s+/g,' ').trim()}
 function brainMemory(){
  const key='artisania.brain.memory.v1';let memory;
  try{memory=JSON.parse(localStorage.getItem(key)||'null')}catch(e){throw new Error('La mémoire locale existe mais elle est illisible. Aucune donnée n’a été modifiée.')}
@@ -70,9 +70,9 @@ function brainResolve(memory,message){
 function brainDate(raw){const t=brainNormalize(raw);const m=raw.match(/\b(20\d{2}-\d{2}-\d{2})\b/);if(m)return m[1];const d=new Date();if(t.includes('demain'))d.setDate(d.getDate()+1);else if(t.includes('aujourd hui')){}else return '';return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')}
 function brainShow(html){$('#ai2-result',root).innerHTML=html}
 function brainExtractActions(raw){
- let text=String(raw||'').replace(/^\s*(demain|aujourd’hui|aujourd hui|20\d{2}-\d{2}-\d{2})\s*[,;:.-]?\s*/i,'').replace(/^\s*(rappelle[ -]moi|rappeler|pense a|ne pas oublier|je dois|il faut(?: que je)?)\s*/i,'').replace(/^\s*(de|d’)\s*/i,'').replace(/\s+(demain|aujourd’hui|aujourd'hui|20\d{2}-\d{2}-\d{2})\s*.*$/i,'').replace(/[.!?]+$/,'').trim();
+ let text=brainNormalize(raw).replace(/^\s*(demain|aujourd hui|20\d{2}-\d{2}-\d{2})\s*[,;:.-]?\s*/i,'').replace(/^\s*(rappel moi|rappeler|pense a|ne pas oublier|je dois|il faut(?: que je)?)\s*/i,'').replace(/^\s*(de|d)\s*/i,'').replace(/\s+(demain|aujourd hui|20\d{2}-\d{2}-\d{2})\s*.*$/i,'').replace(/[.!?]+$/,'').trim();
  const m=text.match(/^(.+?)\s+pour\s+(.+)$/i);let parts=m?[m[1],...m[2].split(/\s+et\s+/i)]:[text];
- return parts.map(x=>String(x).trim().replace(/^(?:de|d’)\s*/i,'')).filter(Boolean).map(x=>x.charAt(0).toLocaleUpperCase('fr')+x.slice(1));
+ return parts.map(x=>String(x).trim().replace(/^(?:de|d)\s*/i,'')).filter(Boolean).map(x=>x.charAt(0).toLocaleUpperCase('fr')+x.slice(1));
 }
 function runCommand(){
  const raw=$('#ai2-command',root)?.value.trim();if(!raw)return;pendingBrainProposal=null;
