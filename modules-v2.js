@@ -155,6 +155,8 @@ function brainExtractActions(raw){
   .replace(/^\s*(apres demain|demain|aujourd hui|20\d{2}-\d{2}-\d{2}|dimanche|lundi|mardi|mercredi|jeudi|vendredi|samedi)\s*[,;:.-]?\s*/i,'')
   .replace(/^\s*(rappelle? moi|rappeler|pense a|ne pas oublier|je dois|il faut(?: que je)?|relancer|relance|recontacter)\s*/i,'')
   .replace(/^\s*(de|d)\s*/i,'')
+  .replace(/\b\d{1,2}\s+(?:janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\s+20\d{2}\b/gi,' ')
+  .replace(/\b\d{1,2}[\/.-]\d{1,2}[\/.-]20\d{2}\b/gi,' ')
   .replace(/\b(apres demain|demain|aujourd hui|20\d{2}-\d{2}-\d{2}|dimanche|lundi|mardi|mercredi|jeudi|vendredi|samedi)(?: prochain)?\b/gi,' ')
   .replace(/\s+a?\s*\d{1,2}\s*(?:h\s*\d{0,2}|:\s*\d{2})\b/gi,'')
   .replace(/[.!?]+$/,'').trim();
