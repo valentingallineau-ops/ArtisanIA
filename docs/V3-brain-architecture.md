@@ -73,5 +73,25 @@ La mémoire distingue **faits confirmés**, **hypothèses** et **suggestions**. 
 - [x] Première mémoire structurée autonome + import V2 non destructif.
 - [x] Résolution locale du contexte et détection des homonymes.
 - [x] Orchestrateur local : intention + contexte + proposition prudente.
-- [x] Première intégration du cerveau dans l'onglet Assistant : mémoire locale V2 importée de façon additive, recherche de contexte, détection des homonymes et proposition de tâche avec confirmation explicite.\n- [ ] Enrichir les intentions prises en charge et tester les scénarios réels avec l'utilisateur.
+- [x] Première intégration du cerveau dans l'onglet Assistant : mémoire locale V2 importée de façon additive, recherche de contexte, détection des homonymes et propositions confirmées par l'utilisateur.
+- [x] Rappels et relances : proposition de tâches avec date, heure, actions détaillées et association client/chantier choisie explicitement.
+- [x] Livraisons : proposition d'un rendez-vous dans le planning, avec date obligatoire et association facultative.
+- [x] Informations de chantier : proposition d'une note de suivi liée à un client ou chantier, sans modifier automatiquement le statut du chantier.
+- [ ] Rendez-vous génériques et informations de paiement : prise en charge à concevoir avec prévisualisation et garde-fous adaptés.\n- [ ] Enrichir les intentions prises en charge et tester les scénarios réels avec l'utilisateur.
 - [ ] Interface cerveau et tests utilisateurs.
+
+
+## Scénarios de validation manuelle — interface V3
+
+À tester dans une copie locale de l'application, avec des données de démonstration :
+
+1. **Rappel** — « Rappelle-moi d'appeler Dupont vendredi à 14h30 pour son chantier de toiture. » Vérifier la date, l'heure, les actions proposées, l'association choisie et la création uniquement après confirmation.
+2. **Annulation** — analyser une demande puis cliquer sur Annuler. Vérifier qu'aucune tâche n'est créée.
+3. **Relance** — « Relancer Dupont demain pour le devis. » Vérifier qu'une tâche est proposée et que le client n'est pas associé sans sélection explicite.
+4. **Livraison** — « Le fournisseur livre les tuiles jeudi. » Vérifier que la date est demandée si elle manque, puis que la livraison est ajoutée au planning seulement après confirmation.
+5. **Point chantier** — « Le chantier Toiture est bloqué. » Vérifier qu'une note de suivi est proposée et que le statut du chantier reste inchangé.
+6. **Homonymes** — utiliser deux clients portant le même nom. Vérifier qu'aucun n'est choisi automatiquement.
+7. **Persistance** — après confirmation, changer d'onglet puis recharger l'application. Vérifier que l'élément est toujours présent.
+8. **Sauvegarde** — exporter les données avant et après les essais et vérifier que les autres collections restent intactes.
+
+Le moteur reste local et déterministe : il reconnaît des formulations couvertes par des règles, pas toutes les façons de parler. Les rendez-vous génériques et le rapprochement de paiements ne sont pas déclarés terminés.
