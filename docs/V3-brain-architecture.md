@@ -73,5 +73,5 @@ La mémoire distingue **faits confirmés**, **hypothèses** et **suggestions**. 
 - [x] Première mémoire structurée autonome + import V2 non destructif.
 - [x] Résolution locale du contexte et détection des homonymes.
 - [x] Orchestrateur local : intention + contexte + proposition prudente.
-- [ ] Branchement progressif à l'interface métier.
+- [x] Première intégration du cerveau dans l'onglet Assistant : mémoire locale V2 importée de façon additive, recherche de contexte, détection des homonymes et proposition de tâche avec confirmation explicite.\n- [ ] Enrichir les intentions prises en charge et tester les scénarios réels avec l'utilisateur.
 - [ ] Interface cerveau et tests utilisateurs.
