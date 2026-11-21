@@ -219,7 +219,7 @@ function brainExtractActions(raw){
  return parts.map(x=>x.replace(/^(?:de|d)\s*/i,'')).filter(Boolean).map(x=>x.charAt(0).toLocaleUpperCase('fr')+x.slice(1));
 }
 function brainMoney(value){const m=String(value||'').match(/(\d{1,3}(?:[ .]\d{3})*(?:[,.]\d{1,2})?|\d+(?:[,.]\d{1,2})?)\s*(?:€|euros?)/i);if(!m)return null;const n=Number(m[1].replace(/[ .]/g,'').replace(',','.'));return Number.isFinite(n)&&n>0?Math.round(n*100)/100:null;}
-function invoicePaidAmount(invoice){const p=Array.isArray(invoice.payments)?invoice.payments:[];return p.length?p.reduce((n,x)=>n+(Number(x.amount)||0),0):Math.max(0,Number(invoice.paidAmount)||0);}
+function invoicePaidAmount(invoice){const p=Array.isArray(invoice.payments)?invoice.payments:[];const fromHistory=p.reduce((n,x)=>n+(Number(x.amount)||0),0);return Math.max(fromHistory,Math.max(0,Number(invoice.paidAmount)||0));}
 function invoiceRemaining(invoice){return Math.max(0,Math.round(((Number(invoice.amount)||0)-invoicePaidAmount(invoice))*100)/100);}
 function runCommand(){
  const raw=$('#ai2-command',root)?.value.trim();if(!raw)return;pendingBrainProposal=null;
