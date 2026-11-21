@@ -93,6 +93,30 @@ function brainResolve(memory,message){
  const selected=[],ambiguous=[];for(const group of grouped.values()){if(group.length===1)selected.push(group[0]);else ambiguous.push(group)}
  return {matched:selected,ambiguous};
 }
+function brainRelated(memory,seeds){
+ const entities=memory.entities||[],included=new Map(seeds.map(x=>[x.id,x])),queue=seeds.map(x=>x.id);
+ while(queue.length){const id=queue.shift(),current=included.get(id);for(const link of current?.links||[]){const found=entities.find(x=>x.id===link.id);if(found&&!included.has(found.id)){included.set(found.id,found);queue.push(found.id)}}for(const entity of entities){if((entity.links||[]).some(link=>link.id===id)&&!included.has(entity.id)){included.set(entity.id,entity);queue.push(entity.id)}}}
+ const seedIds=new Set(seeds.map(x=>x.id));return [...included.values()].filter(x=>!seedIds.has(x.id));
+}
+function brainEntityType(type){return ({client:'Client',prospect:'Prospect',job:'Chantier',task:'Tâche',event:'Rendez-vous',note:'Note',invoice:'Facture',supplier:'Fournisseur',material:'Matériau',expense:'Dépense'})[type]||'Information'}
+function brainEntityTitle(entity){const d=entity.data||{};return d.name||d.title||d.number||d.reference||'Fiche sans titre'}
+function brainEntityMeta(entity){
+ const d=entity.data||{},parts=[];
+ if(d.status)parts.push(d.status);if(d.date)parts.push(d.date);if(d.time)parts.push(d.time);if(d.dueDate)parts.push('Échéance '+d.dueDate);if(d.amount)parts.push(d.amount+' €');if(d.address)parts.push(d.address);if(d.phone)parts.push(d.phone);
+ return parts.join(' · ')||'Information enregistrée dans la mémoire';
+}
+function brainRenderMemorySearch(memory,message){
+ const resolved=brainResolve(memory,message);
+ if(resolved.ambiguous.length){
+  const groups=resolved.ambiguous.map(group=>'<div class="card"><strong>'+esc(brainEntityType(group[0].type))+'s homonymes : '+esc(brainEntityTitle(group[0]))+'</strong>'+group.map(x=>'<p class="muted small">• '+esc(brainEntityTitle(x))+(x.data?.address?' — '+esc(x.data.address):'')+(x.data?.phone?' — '+esc(x.data.phone):'')+'</p>').join('')+'</div>').join('');
+  brainShow('<div class="card"><h2>Plusieurs fiches correspondent</h2><p class="muted">Je ne choisis pas à ta place. Précise l’adresse, le chantier ou une autre information pour identifier la bonne fiche.</p>'+groups+'</div>');return true;
+ }
+ if(!resolved.matched.length)return false;
+ const related=brainRelated(memory,resolved.matched),all=[...resolved.matched.map(x=>({...x,isPrimary:true})),...related.map(x=>({...x,isPrimary:false}))];
+ const cards=all.slice(0,16).map(x=>'<div class="item"><div><span class="pill '+(x.isPrimary?'blue':'')+'">'+esc(brainEntityType(x.type))+(x.isPrimary?' · correspondance':' · lié')+'</span><strong style="display:block;margin-top:5px">'+esc(brainEntityTitle(x))+'</strong><p>'+esc(brainEntityMeta(x))+'</p></div></div>').join('');
+ brainShow('<div class="card"><div class="row" style="justify-content:space-between"><h2>Informations retrouvées</h2><span class="pill good">'+all.length+' fiche(s)</span></div><p class="muted small">Résultat de la recherche dans la mémoire locale. Les fiches liées sont affichées uniquement lorsque leur relation est enregistrée.</p>'+cards+(all.length>16?'<p class="muted small">16 premières fiches affichées.</p>':'')+'</div>');
+ return true;
+}
 function brainDate(raw){const t=brainNormalize(raw);const m=raw.match(/\b(20\d{2}-\d{2}-\d{2})\b/);if(m)return m[1];const d=new Date();if(t.includes('demain'))d.setDate(d.getDate()+1);else if(t.includes('aujourd hui')){}else return '';return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')}
 function brainShow(html){$('#ai2-result',root).innerHTML=html}
 function brainExtractActions(raw){
@@ -105,7 +129,7 @@ function runCommand(){
  let memory;try{memory=brainMemory()}catch(error){brainShow('<div class="banner warn">'+esc(error.message)+'</div>');return}
  const normalized=brainNormalize(raw);
  const rules=[{intent:'reminder',re:/\b(rappelle moi|rappeler|ne pas oublier|pense a|je dois (?:appeler|contacter|verifier|faire le point)|il faut que je (?:appelle|contacte|verifie))\b/,label:'Préparer un rappel'},{intent:'follow_up',re:/\b(relancer|relance|recontacter)\b/,label:'Préparer une relance'},{intent:'schedule',re:/\b(rendez vous|rdv|visite)\b/,label:'Rendez-vous détecté'},{intent:'delivery',re:/\b(livre|livraison|livrer|arrive)\b/,label:'Information de livraison détectée'},{intent:'payment_received',re:/\b(recu|recois|acompte|paiement|paye)\b/,label:'Information de paiement détectée'},{intent:'job_update',re:/\b(chantier|commence|demarre|termine|avance)\b/,label:'Information de chantier détectée'}];
- const rule=rules.find(x=>x.re.test(normalized));if(!rule){brainShow('<div class="card"><h2>Je n’ai pas encore identifié l’action</h2><p class="muted">Essaie : « Rappelle-moi d’appeler M. Dupont demain ».</p></div>');return}
+ const rule=rules.find(x=>x.re.test(normalized));if(!rule){if(brainRenderMemorySearch(memory,raw))return;brainShow('<div class="card"><h2>Je n’ai pas identifié d’action ni retrouvé de fiche précise</h2><p class="muted">Tu peux demander par exemple : « Où en est le chantier Toiture ? » ou « Rappelle-moi d’appeler M. Dupont demain ».</p><p class="muted small">Aucune donnée n’a été modifiée.</p></div>');return}
  if(!['reminder','follow_up'].includes(rule.intent)){brainShow('<div class="card"><h2>'+esc(rule.label)+'</h2><p class="muted">Ce type d’action sera pris en charge progressivement par le cerveau V3.</p></div>');return}
  const date=brainDate(raw);if(!date){brainShow('<div class="card"><h2>Il me manque une date</h2><p class="muted">Indique une date, par exemple « demain » ou « 2026-12-01 ».</p></div>');return}
  const query=brainNormalize(raw);const candidates=(memory.entities||[]).filter(x=>['client','job'].includes(x.type)&&x.status!=='archived'&&x.data).sort((x,y)=>{const lx=brainNormalize(x.type==='job'?x.data.title:x.data.name),ly=brainNormalize(y.type==='job'?y.data.title:y.data.name);const rx=lx&&query.includes(lx)?0:1,ry=ly&&query.includes(ly)?0:1;return rx-ry||String(x.data.name||x.data.title||'').localeCompare(String(y.data.name||y.data.title||''),'fr')});
