@@ -12,6 +12,7 @@ on:
     paths:
       - 'brain/**'
       - 'tests/**'
+      - 'modules-v2.js'
       - '.github/workflows/brain-tests.yml'
 jobs:
   test:
