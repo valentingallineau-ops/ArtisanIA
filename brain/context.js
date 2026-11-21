@@ -56,13 +56,26 @@ function resolveContext(memorySnapshot, message) {
   }
 
   const included = new Map(selected.map(entity => [entity.id, entity]));
-  const selectedIds = new Set(included.keys());
+  const queue = [...included.keys()];
 
-  // Include entities explicitly linked to a selected record, in either direction.
-  for (const entity of entities) {
-    const links = Array.isArray(entity.links) ? entity.links : [];
-    if (links.some(link => selectedIds.has(link.id))) included.set(entity.id, entity);
-    if (links.some(link => included.has(link.id))) included.set(entity.id, entity);
+  // Walk only explicit links, in both directions, to gather the connected context.
+  while (queue.length) {
+    const currentId = queue.shift();
+    const current = included.get(currentId);
+    for (const link of (Array.isArray(current?.links) ? current.links : [])) {
+      const linked = entities.find(entity => entity.id === link.id);
+      if (linked && !included.has(linked.id)) {
+        included.set(linked.id, linked);
+        queue.push(linked.id);
+      }
+    }
+    for (const entity of entities) {
+      const links = Array.isArray(entity.links) ? entity.links : [];
+      if (links.some(link => link.id === currentId) && !included.has(entity.id)) {
+        included.set(entity.id, entity);
+        queue.push(entity.id);
+      }
+    }
   }
 
   return {
