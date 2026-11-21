@@ -4,13 +4,13 @@ on:
     branches: [feature/v3-brain-foundation]
     paths:
       - 'brain/**'
-      - 'tests/brain.test.js'
+      - 'tests/**'
       - '.github/workflows/brain-tests.yml'
   pull_request:
     branches: [feature/v2-responsive-ux]
     paths:
       - 'brain/**'
-      - 'tests/brain.test.js'
+      - 'tests/**'
       - '.github/workflows/brain-tests.yml'
 jobs:
   test:
@@ -21,4 +21,4 @@ jobs:
         with:
           node-version: 22
       - name: Run local brain tests
-        run: node --test tests/brain.test.js
+        run: node --test tests/*.test.js
