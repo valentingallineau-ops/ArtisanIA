@@ -50,3 +50,10 @@ test("does not match partial words or invent context", () => {
   assert.equal(result.related.length, 0);
   assert.equal(result.ambiguities.length, 0);
 });
+
+test("resolves a named job and follows its explicit client relationship", () => {
+  const result = resolveContext(snapshot(), "Où en est la rénovation toiture ?");
+  assert.equal(result.matched[0].type, "job");
+  assert.ok(result.related.some(item => item.type === "client"));
+  assert.ok(result.related.some(item => item.type === "task"));
+});
