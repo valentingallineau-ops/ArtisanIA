@@ -55,6 +55,7 @@ function resolveContext(memorySnapshot, message) {
     }
   }
 
+  const selectedIds = new Set(selected.map(entity => entity.id));
   const included = new Map(selected.map(entity => [entity.id, entity]));
   const queue = [...included.keys()];
 
