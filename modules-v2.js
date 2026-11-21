@@ -45,7 +45,7 @@ function taskUrgency(task){
 }
 function taskClientName(task){const client=db.clients.find(c=>String(c.id)===String(task.clientId||''))||db.clients.find(c=>String(c.name||'').trim().toLocaleLowerCase('fr')===String(task.client||'').trim().toLocaleLowerCase('fr'));return client?.name||task.client||'Sans client associé'}
 function list(type,arr,fields){
- if(type==='tasks')return arr.length?arr.map(x=>{
+ if(type==='task'||type==='tasks')return arr.length?arr.map(x=>{
   const urgency=taskUrgency(x),client=taskClientName(x);
   const detail=x.job||x.reference||x.number||x.notes||'';
   const done=Array.isArray(x.actions)?x.actions.filter(a=>a.status==='Terminé').length:0,total=Array.isArray(x.actions)?x.actions.length:0;
