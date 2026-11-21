@@ -41,6 +41,7 @@ La V1 publiée reste stable pendant les développements suivants.
 - [x] Import non destructif des données V2 dans l'espace mémoire séparé.
 - [x] Liens prudents entre fiches et détection des homonymes/ambiguïtés.
 - [x] Résolution locale du contexte et tests automatisés de la fondation.
+- [x] Premier orchestrateur réunissant compréhension, mémoire et proposition d'action sans exécution automatique.
 - [ ] Capture d'informations en langage naturel depuis l'application.
 - [ ] Consultation de la mémoire et affichage des éléments de contexte retrouvés.
 - [ ] Propositions de création de tâches et rappels, avec dates clarifiées.
@@ -49,7 +50,7 @@ La V1 publiée reste stable pendant les développements suivants.
 - [ ] Recherche intelligente en langage naturel.
 - [ ] Validation sur des scénarios réels et retours d'artisans.
 
-**État :** fondations techniques autonomes en place; elles ne sont pas encore intégrées à l'interface métier. Les règles locales actuelles ne constituent pas encore une IA générative.
+**État :** fondations techniques et orchestrateur local en place, avec 23 tests réussis sur le dernier contrôle. Ils ne sont pas encore intégrés à l'interface métier. Les règles locales actuelles ne constituent pas encore une IA générative.
 
 ## V4 — Documents et administration automatisés
 
