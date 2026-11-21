@@ -53,14 +53,17 @@ La mémoire distingue **faits confirmés**, **hypothèses** et **suggestions**. 
 - Les liens client/chantier/fournisseur sont créés seulement lorsqu'une correspondance unique et exacte est trouvée; les ambiguïtés restent sans lien.
 - Un nouvel import est idempotent : il n'écrase pas une mémoire déjà enrichie.
 - Un résolveur de contexte local retrouve les fiches nommées et leurs relations explicites; les homonymes sont signalés comme ambigus au lieu d'être choisis automatiquement.
-- La mémoire et le résolveur de contexte sont actuellement des modules autonomes testés; ils ne sont pas encore branchés à l'interface de l'application.
+- Un premier orchestrateur local réunit la compréhension d'une phrase, la recherche de contexte et la préparation d'une proposition liée à une fiche lorsqu'elle est identifiée sans ambiguïté.
+- L'orchestrateur ne modifie pas la mémoire et n'exécute aucune action; il retourne une proposition à confirmer. En cas d'homonymie, il demande une précision.
+- Ces modules sont testés mais ne sont pas encore branchés à l'interface de l'application.
 
 ## Étapes suivantes
 1. [x] Écrire et tester le moteur local de compréhension (règles de base, sans IA externe).
 2. [x] Construire le premier magasin de mémoire structurée et l'import non destructif des données V2.
-3. Concevoir une interface conversationnelle qui affiche le contexte utilisé et les actions proposées.
-4. Valider sur un panel de scénarios réels d'artisans avant de brancher un modèle IA externe.
-5. Après validation de l'utilité et de la demande, seulement alors étudier coût et intégration d'API IA.
+3. [x] Réunir compréhension, mémoire et contexte dans un orchestrateur local qui ne fait que proposer.
+4. Concevoir une interface conversationnelle qui affiche le contexte utilisé et les actions proposées.
+5. Valider sur un panel de scénarios réels d'artisans avant de brancher un modèle IA externe.
+6. Après validation de l'utilité et de la demande, seulement alors étudier coût et intégration d'API IA.
 
 ## Statut
 - [x] V2 responsive et fiabilisation des modules — développement terminé, validation manuelle PC/mobile à faire.
@@ -69,5 +72,6 @@ La mémoire distingue **faits confirmés**, **hypothèses** et **suggestions**. 
 - [x] Moteur local de compréhension + tests.
 - [x] Première mémoire structurée autonome + import V2 non destructif.
 - [x] Résolution locale du contexte et détection des homonymes.
-- [ ] Branchement progressif de la mémoire au contexte de l'application.
+- [x] Orchestrateur local : intention + contexte + proposition prudente.
+- [ ] Branchement progressif à l'interface métier.
 - [ ] Interface cerveau et tests utilisateurs.
