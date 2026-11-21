@@ -44,7 +44,7 @@ expenses:()=>section('Dépenses','expense','Intitulé de la dépense','title',['
 };
 function assistantView(){return '<div class="ai2-module-head"><div><h1>Assistant ArtisanIA</h1><p class="muted">Décris ce que tu veux noter ou organiser. L’assistant retrouve le contexte et prépare une proposition à vérifier.</p></div><span class="pill blue">Cerveau local V3</span></div><div class="card ai2-brain-compose"><label class="lbl" for="ai2-command">Que veux-tu dire à ArtisanIA ?</label><textarea id="ai2-command" rows="4" placeholder="Ex. : Rappelle-moi d’appeler M. Dupont demain pour son chantier de toiture."></textarea><div class="row" style="margin-top:12px"><button class="btn primary" id="ai2-run">Analyser ma demande</button><span class="muted small">Aucune action ne sera effectuée sans ta confirmation.</span></div></div><div id="ai2-result" class="ai2-brain-result" aria-live="polite"></div><div class="card" style="margin-top:14px"><h2>Comment fonctionne le cerveau ?</h2><p class="muted">ArtisanIA analyse la phrase localement, recherche les fiches correspondantes dans la mémoire de l’entreprise et prépare une action. Les noms ambigus doivent être précisés. Aucune donnée n’est modifiée pendant l’analyse.</p></div>'}
 let pendingBrainProposal=null;
-function brainNormalize(value){return String(value??'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().replace(/[’']/g,' ').replace(/[^a-z0-9€.,!?\\s-]/g,' ').replace(/-/g,' ').replace(/\\s+/g,' ').trim()}
+function brainNormalize(value){return String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[’']/g,' ').replace(/[^a-z0-9€.,!?\s-]/g,' ').replace(/-/g,' ').replace(/\s+/g,' ').trim()}
 function brainMemory(){
  const key='artisania.brain.memory.v1';let memory;
  try{memory=JSON.parse(localStorage.getItem(key)||'null')}catch(e){throw new Error('La mémoire locale existe mais elle est illisible. Aucune donnée n’a été modifiée.')}
@@ -67,19 +67,19 @@ function brainResolve(memory,message){
  const selected=[],ambiguous=[];for(const group of grouped.values()){if(group.length===1)selected.push(group[0]);else ambiguous.push(group)}
  return {matched:selected,ambiguous};
 }
-function brainDate(raw){const t=brainNormalize(raw);const m=raw.match(/\\b(20\\d{2}-\\d{2}-\\d{2})\\b/);if(m)return m[1];const d=new Date();if(t.includes('demain'))d.setDate(d.getDate()+1);else if(t.includes('aujourd hui')){}else return '';return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')}
+function brainDate(raw){const t=brainNormalize(raw);const m=raw.match(/\b(20\d{2}-\d{2}-\d{2})\b/);if(m)return m[1];const d=new Date();if(t.includes('demain'))d.setDate(d.getDate()+1);else if(t.includes('aujourd hui')){}else return '';return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')}
 function brainShow(html){$('#ai2-result',root).innerHTML=html}
 function runCommand(){
  const raw=$('#ai2-command',root)?.value.trim();if(!raw)return;pendingBrainProposal=null;
  let memory;try{memory=brainMemory()}catch(error){brainShow('<div class="banner warn">'+esc(error.message)+'</div>');return}
  const normalized=brainNormalize(raw);
  const rules=[
-  {intent:'reminder',re:/\\b(rappelle moi|rappeler|ne pas oublier|pense a)\\b/,label:'Préparer un rappel'},
-  {intent:'follow_up',re:/\\b(relancer|relance|recontacter)\\b/,label:'Préparer une relance'},
-  {intent:'schedule',re:/\\b(rendez vous|rdv|visite)\\b/,label:'Rendez-vous détecté'},
-  {intent:'delivery',re:/\\b(livre|livraison|livrer|arrive)\\b/,label:'Information de livraison détectée'},
-  {intent:'payment_received',re:/\\b(recu|recois|acompte|paiement|paye)\\b/,label:'Information de paiement détectée'},
-  {intent:'job_update',re:/\\b(chantier|commence|demarre|termine|avance)\\b/,label:'Information de chantier détectée'}
+  {intent:'reminder',re:/\b(rappelle moi|rappeler|ne pas oublier|pense a)\b/,label:'Préparer un rappel'},
+  {intent:'follow_up',re:/\b(relancer|relance|recontacter)\b/,label:'Préparer une relance'},
+  {intent:'schedule',re:/\b(rendez vous|rdv|visite)\b/,label:'Rendez-vous détecté'},
+  {intent:'delivery',re:/\b(livre|livraison|livrer|arrive)\b/,label:'Information de livraison détectée'},
+  {intent:'payment_received',re:/\b(recu|recois|acompte|paiement|paye)\b/,label:'Information de paiement détectée'},
+  {intent:'job_update',re:/\b(chantier|commence|demarre|termine|avance)\b/,label:'Information de chantier détectée'}
  ];
  const rule=rules.find(x=>x.re.test(normalized));
  if(!rule){brainShow('<div class="card"><h2>Je n’ai pas encore identifié l’action</h2><p class="muted">Essaie par exemple : « Rappelle-moi d’appeler M. Dupont demain » ou « Je dois relancer Mme Martin ».</p></div>');return}
@@ -87,7 +87,7 @@ function runCommand(){
  if(context.ambiguous.length){const choices=context.ambiguous.flat().map(x=>'<li><strong>'+esc(x.data?.name||x.data?.title||'Fiche sans nom')+'</strong> — '+esc(({client:'Client',prospect:'Prospect',job:'Chantier',supplier:'Fournisseur'})[x.type]||x.type)+'</li>').join('');brainShow('<div class="card"><h2>Plusieurs fiches correspondent</h2><p class="muted">Je ne choisis pas à ta place. Précise le client ou le chantier concerné.</p><ul>'+choices+'</ul></div>');return}
  if(!['reminder','follow_up'].includes(rule.intent)){brainShow('<div class="card"><h2>'+esc(rule.label)+'</h2><p class="muted">J’ai repéré cette information, mais je ne crée pas encore automatiquement ce type de fiche. Tu peux l’enregistrer dans le module correspondant. Le cerveau V3 sera enrichi progressivement.</p></div>');return}
  const date=brainDate(raw);
- const title=raw.replace(/^\\s*(rappelle[ -]moi de|rappelle moi|pense a|ne pas oublier de|je dois|il faut)\\s*/i,'').replace(/^\\s*(de|d’)\\s*/i,'').replace(/\\s+(demain|aujourd’hui|aujourd'hui|20\\d{2}-\\d{2}-\\d{2}).*$/i,'').trim()||raw;
+ const title=raw.replace(/^\s*(rappelle[ -]moi de|rappelle moi|pense a|ne pas oublier de|je dois|il faut)\s*/i,'').replace(/^\s*(de|d’)\s*/i,'').replace(/\s+(demain|aujourd’hui|aujourd'hui|20\d{2}-\d{2}-\d{2}).*$/i,'').trim()||raw;
  if(!date){brainShow('<div class="card"><h2>Il me manque une date</h2><p class="muted">J’ai compris qu’il s’agit d’un rappel ou d’une relance. Indique une date claire, par exemple « demain » ou « 2026-12-01 ».</p></div>');return}
  const client=context.matched.find(x=>x.type==='client'||x.type==='prospect');const job=context.matched.find(x=>x.type==='job');
  pendingBrainProposal={type:'task',data:{id:uid(),title,date,status:'À faire',priority:/urgent/i.test(normalized)?'Haute':'Normale',client:client?.data?.name||'',clientId:client?.sourceId||'',job:job?.data?.title||'',jobId:job?.sourceId||''},context:context.matched.map(x=>({type:x.type,label:x.data?.name||x.data?.title||''}))};
