@@ -12,11 +12,20 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Check JavaScript syntax
+      - name: Check JavaScript syntax and app integration
         run: |
           node --check modules-v2.js
           node --check documents-v4-core.js
           node --check documents-v4.js
           node --check sw.js
+          python tests/check_app.py
       - name: Run document core tests
         run: node --test tests/documents-v4-core.test.cjs
+      - name: Install browser test dependencies
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Start local preview server
+        run: python -m http.server 4173 > /tmp/artisania-v4-http.log 2>&1 &
+      - name: Run V4 browser regression
+        run: node tests/documents-v4.browser.cjs
