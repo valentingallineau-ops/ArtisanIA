@@ -20,7 +20,7 @@ jobs:
           node --check sw.js
           python tests/check_app.py
       - name: Run document core tests
-        run: node --test tests/documents-v4-core.test.cjs
+        run: node --test tests/*.test.js tests/*.test.cjs
       - name: Install browser test dependencies
         run: |
           npm install --no-save playwright
