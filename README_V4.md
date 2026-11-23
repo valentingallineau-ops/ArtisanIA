@@ -9,7 +9,9 @@ Réduire le temps consacré au classement, à la recherche et à la préparation
 - Classement suggéré par type, puis vérification et association manuelle à un client, chantier ou fournisseur existant.
 - Lecture locale partielle des PDF contenant du texte et des fichiers TXT/CSV ; détection indicative du numéro de facture, de la date, du montant et du SIRET.
 - Détection de doublons exacts par empreinte SHA-256, avec choix explicite de conserver ou non une seconde copie.
-- Recherche, filtres, aperçu et téléchargement.
+- Recherche, filtres, aperçu et téléchargement individuel du fichier original.
+- Export ZIP de tous les fichiers originaux, avec conservation des noms et contenus ; les doublons de noms sont renommés sans écraser de fichier.
+- Export CSV distinct du registre (métadonnées uniquement) et préparation d'un CSV pour l'expert-comptable.
 - Corbeille réversible ; suppression définitive protégée par deux confirmations.
 - Export CSV du registre documentaire et préparation d'un CSV pour l'expert-comptable.
 - Sauvegarde documentaire complète en JSON avec les fichiers encodés, puis restauration additive sans écraser les documents existants.
@@ -20,7 +22,7 @@ Réduire le temps consacré au classement, à la recherche et à la préparation
 2. Ajouter un document.
 3. Vérifier le type et les champs proposés ; associer si nécessaire un client, un chantier ou un fournisseur.
 4. Enregistrer le classement.
-5. Utiliser la recherche, les filtres et les exports.
+5. Utiliser la recherche, les filtres, **Télécharger** pour un fichier original, **Exporter les originaux (ZIP)** pour récupérer tous les fichiers, et **Exporter le registre** pour le tableau CSV des métadonnées.
 6. Effectuer régulièrement **Sauvegarder les fichiers** et conserver le JSON hors de l'appareil.
 
 ## Limites et précautions
