@@ -55,6 +55,12 @@ for asset in shell_files:
     if asset != "./":
         assert (ROOT / asset).is_file(), f"Offline cache asset missing: {asset}"
 assert "modules-v2.js" in shell_files
+assert "documents-v4-core.js" in shell_files
+assert "documents-v4.js" in shell_files
+assert (ROOT / "documents-v4-core.js").is_file()
+assert (ROOT / "documents-v4.js").is_file()
+assert '<script src="documents-v4-core.js"></script>' in html
+assert '<script src="documents-v4.js"></script>' in html
 
 inline_scripts = re.findall(r"<script(?:\s[^>]*)?>(.*?)</script>", html, re.I | re.S)
 assert len(inline_scripts) >= 2, f"Expected inline application scripts, got {len(inline_scripts)}"
