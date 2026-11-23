@@ -1,0 +1,22 @@
+name: ArtisanIA V4 document checks
+on:
+  push:
+    branches: [feature/v4-documents-admin]
+  pull_request:
+    branches: [feature/v3-brain-foundation]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check JavaScript syntax
+        run: |
+          node --check modules-v2.js
+          node --check documents-v4-core.js
+          node --check documents-v4.js
+          node --check sw.js
+      - name: Run document core tests
+        run: node --test tests/documents-v4-core.test.cjs
