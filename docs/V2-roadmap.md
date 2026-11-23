@@ -56,13 +56,18 @@ La V1 publiée reste stable pendant les développements suivants.
 
 **Objectif : réduire le temps passé à ranger, vérifier et préparer les documents administratifs.**
 
-- [ ] Classement intelligent des documents par type, client, chantier et fournisseur.
-- [ ] Organisation des factures et justificatifs.
-- [ ] Reconnaissance/lecture de documents et extraction de champs, avec vérification humaine.
-- [ ] Détection des doublons.
-- [ ] Nettoyage sécurisé : proposition, aperçu, sauvegarde, corbeille et confirmation; aucune suppression irréversible automatique.
-- [ ] Préparation comptable et exports structurés pour l'expert-comptable.
-- [ ] Vérification des règles et obligations à partir de sources officielles avant toute fonctionnalité réglementaire.
+- [x] Classement par type, client, chantier et fournisseur, avec validation humaine.
+- [x] Organisation des factures et justificatifs dans un coffre documentaire local séparé des données métier.
+- [x] Lecture textuelle locale des PDF compatibles et fichiers TXT/CSV ; extraction indicative du numéro, de la date, du montant et du SIRET, à vérifier.
+- [x] Détection des doublons exacts par empreinte SHA-256, avec décision laissée à l'utilisateur.
+- [x] Nettoyage sécurisé : aperçu, sauvegarde, corbeille réversible et double confirmation avant suppression définitive.
+- [x] Préparation comptable et export CSV structuré pour l'expert-comptable.
+- [x] Sauvegarde et restauration documentaires additives, sans écrasement des fichiers existants.
+- [ ] OCR des PDF scannés et images : non inclus dans le moteur local actuel ; saisie manuelle proposée pour éviter une dépendance externe lourde.
+- [x] Aucune fonctionnalité réglementaire ou comptable certifiante n'est présentée comme conforme ; toute évolution réglementaire future devra être vérifiée sur des sources officielles.
+- [ ] Vérification technique automatisée, tests de non-régression et validation manuelle PC/téléphone avant clôture de la V4.
+
+**Périmètre respecté :** les connexions aux catalogues fournisseurs, à la banque, à la messagerie et à l'e-mail professionnel restent en V5.
 
 ## V5 — Connexions externes
 
