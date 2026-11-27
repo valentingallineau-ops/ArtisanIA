@@ -17,6 +17,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- ArtisanIA V2 responsive UX layer: same interface adapts fluidly to desktop and mobile -->
+<style>
+/* V2 responsive foundations — additive, preserves existing screens and data logic */
+.wrap,.top-in{max-width:1180px}
+@media(min-width:900px){body{padding-bottom:32px}main{padding-top:18px}header.top{padding-block:14px}.top-in{gap:24px}nav.tabs a{padding:10px 13px}.page-h{margin:14px 0 8px}.card{padding:20px}.grid2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:719px){body{font-size:15px;padding-bottom:calc(86px + env(safe-area-inset-bottom,0px))}header.top{padding-block:8px}.top-in{gap:10px}.brand{font-size:21px}.card{padding:14px}.btn{min-height:44px;padding:10px 13px}.btn.sm{min-height:40px}.icon-btn{width:40px;height:40px}input,select,textarea{font-size:16px;min-height:42px}.page-h{align-items:flex-start}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats .stat:last-child:nth-child(odd){grid-column:1/-1}nav.tabs a{min-height:48px}}
+@media(min-width:1200px){.wrap,.top-in{max-width:1320px}}
+</style>
 </head>
 <body>
 <style>
@@ -745,5 +753,7 @@ if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostn
 }
 </script>
 <script src="modules-v2.js"></script>
+<script src="documents-v4-core.js"></script>
+<script src="documents-v4.js"></script>
 </body>
 </html>

@@ -1,0 +1,107 @@
+# ArtisanIA — feuille de route officielle V1 à V6+
+
+Cette feuille de route est la référence produit. Les versions sont développées dans l'ordre, sans mélanger les objectifs. Une idée nouvelle est rangée dans la version qui lui correspond au lieu d'être ajoutée prématurément.
+
+## V1 — Terminée et publiée
+
+**Base existante**
+- [x] Modules de gestion existants.
+- [x] Clients et prospects.
+- [x] Chantiers.
+- [x] Devis, factures et dépenses.
+- [x] Sauvegarde et restauration.
+- [x] Première version fonctionnelle publiée.
+
+La V1 publiée reste stable pendant les développements suivants.
+
+## V2 — Simplicité et expérience utilisateur
+
+**Objectif : rendre l'application évidente et agréable avant d'ajouter de la complexité.**
+
+- [x] Refonte initiale de l'accueil et tableau de bord utile.
+- [x] Navigation adaptative ordinateur / tablette / téléphone.
+- [x] Actions rapides et raccourcis.
+- [x] Formulaires et listes adaptés aux écrans, champs et actions simplifiés.
+- [x] Réduction des clics et des ressaisies sur les parcours travaillés.
+- [x] Amélioration des liens entre les modules et des suggestions de données liées.
+- [x] Audit technique et fonctionnel initial : menus, recherches, statuts, formulaires, suppressions, messages et états vides.
+- [x] Préservation des fonctions existantes, des données, de l'import/export et du mode hors ligne, vérifiée par des contrôles automatisés.
+- [ ] Audit final d'usage réel et validation manuelle sur ordinateur et téléphone.
+- [ ] Corriger les derniers problèmes remontés lors de cette validation.
+- [ ] Publication de la V2 après validation explicite.
+
+**État :** implémentation principale terminée sur la branche de développement. La validation manuelle finale reste obligatoire avant fusion/publication.
+
+## V3 — Assistant et automatisations
+
+**Objectif : permettre à l'artisan de parler naturellement à ArtisanIA, qui comprend le contexte de son entreprise et lui propose des actions utiles.**
+
+- [x] Première compréhension locale de formulations fréquentes, sans API externe.
+- [x] Première mémoire métier structurée, locale et versionnée.
+- [x] Import non destructif des données V2 dans l'espace mémoire séparé.
+- [x] Liens prudents entre fiches et détection des homonymes/ambiguïtés.
+- [x] Résolution locale du contexte et tests automatisés de la fondation.
+- [x] Premier orchestrateur réunissant compréhension, mémoire et proposition d'action sans exécution automatique.
+- [ ] Capture d'informations en langage naturel depuis l'application.
+- [x] Première consultation de la mémoire et affichage des fiches liées retrouvées par recherche exacte.
+- [ ] Propositions de création de tâches et rappels, avec dates clarifiées.
+- [x] Première détection des tâches en retard, sans échéance et des relances prospects échues, avec explication et contrôle de l'artisan.
+- [x] Premier point de situation dans l'Assistant : tâches ouvertes, chantiers actifs, rendez-vous à venir et éléments à vérifier.
+- [x] Première recherche en langage naturel dans la mémoire locale, avec détection des homonymes et affichage des fiches liées (correspondance exacte).
+- [ ] Validation sur des scénarios réels et retours d'artisans.
+
+**État :** fondations techniques et orchestrateur local en place. L'interface V3 est intégrée progressivement : propositions de tâches/rappels à confirmer, recherche exacte dans la mémoire, affichage du contexte lié et premier point de situation. La compréhension reste déterministe et limitée à des formulations prises en charge ; elle ne constitue pas encore une IA générative. Les validations manuelles et les scénarios réels restent à terminer.
+
+## V4 — Documents et administration automatisés
+
+**Objectif : réduire le temps passé à ranger, vérifier et préparer les documents administratifs.**
+
+- [x] Classement par type, client, chantier et fournisseur, avec validation humaine.
+- [x] Organisation des factures et justificatifs dans un coffre documentaire local séparé des données métier.
+- [x] Lecture textuelle locale des PDF compatibles et fichiers TXT/CSV ; extraction indicative du numéro, de la date, du montant et du SIRET, à vérifier.
+- [x] Détection des doublons exacts par empreinte SHA-256, avec décision laissée à l'utilisateur.
+- [x] Nettoyage sécurisé : aperçu, sauvegarde, corbeille réversible et double confirmation avant suppression définitive.
+- [x] Préparation comptable et export CSV structuré pour l'expert-comptable.
+- [x] Sauvegarde et restauration documentaires additives, sans écrasement des fichiers existants.
+- [ ] OCR des PDF scannés et images : non inclus dans le moteur local actuel ; saisie manuelle proposée pour éviter une dépendance externe lourde.
+- [x] Aucune fonctionnalité réglementaire ou comptable certifiante n'est présentée comme conforme ; toute évolution réglementaire future devra être vérifiée sur des sources officielles.
+- [ ] Vérification technique automatisée, tests de non-régression et validation manuelle PC/téléphone avant clôture de la V4.
+
+**Périmètre respecté :** les connexions aux catalogues fournisseurs, à la banque, à la messagerie et à l'e-mail professionnel restent en V5.
+
+## V5 — Connexions externes
+
+**Objectif : relier ArtisanIA aux outils réellement utilisés, seulement après validation du besoin, de la sécurité, des coûts et des conditions d'accès.**
+
+- [ ] Catalogues fournisseurs.
+- [ ] Messagerie clients.
+- [ ] Boîte mail professionnelle.
+- [ ] Compte bancaire.
+- [ ] Logiciels comptables.
+- [ ] Synchronisation des informations entre services.
+
+Aucune connexion externe, aucun abonnement ni aucune API payante ne sont activés par anticipation. Chaque intégration nécessitera une décision explicite, des permissions minimales, une gestion des erreurs et une possibilité de désactivation.
+
+## V6 et suivantes — Assistant métier avancé
+
+**Objectif : faire évoluer ArtisanIA vers un assistant qui comprend de mieux en mieux l'entreprise et aide à l'organiser.**
+
+- [ ] Anticipation des besoins et alertes contextualisées.
+- [ ] Gestion plus avancée des chantiers.
+- [ ] Analyse de rentabilité.
+- [ ] Préparation des achats.
+- [ ] Organisation et optimisation du planning.
+- [ ] Actions assistées ou automatisées, configurables, traçables et annulables.
+- [ ] Compréhension progressive des habitudes, contraintes et objectifs de l'entreprise.
+
+## Règles de développement et de publication
+
+1. Respecter l'ordre V1 → V2 → V3 → V4 → V5 → V6+; ne pas lancer les connexions V5 pendant la construction du cœur V3.
+2. Partir des problèmes fréquents et coûteux en temps ou en argent, puis vérifier leur utilité auprès d'artisans.
+3. Préserver les fonctions et les données existantes; toute migration est additive, sauvegardée et testée.
+4. Aucun effacement irréversible, envoi, paiement ou changement sensible sans confirmation explicite.
+5. Favoriser le local et le gratuit pendant le développement; ne pas engager de dépenses récurrentes avant validation commerciale.
+6. Tester chaque évolution automatiquement et manuellement sur ordinateur et téléphone lorsque l'interface est concernée.
+7. Travailler sur des branches dédiées. La branche publiée n'est pas modifiée directement.
+8. Une version reste en brouillon tant que ses tests, sa validation utilisateur et son contrôle de non-régression ne sont pas terminés.
+9. Ne jamais présenter un prototype à règles déterministes comme une IA générative déjà opérationnelle.

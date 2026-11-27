@@ -1,0 +1,97 @@
+# ArtisanIA V3 — Architecture du cerveau
+
+## Objectif
+Faire d'ArtisanIA un assistant d'activité pour artisans, pas seulement un outil de devis. Le cerveau relie le contexte métier, la mémoire, la compréhension des messages, le raisonnement et les actions proposées.
+
+## Principes non négociables
+- **Local-first et gratuit au développement** : aucun abonnement, API payante, serveur, compte bancaire connecté ou service externe requis pour la V3 de base.
+- **Données maîtrisées** : stockage local actuel conservé; les nouvelles structures sont versionnées et exportables.
+- **Aucune action irréversible automatique** : l'assistant propose; l'artisan confirme avant de modifier, supprimer, envoyer, réserver ou engager une dépense.
+- **Pas de perte de données** : migration additive, sauvegarde avant changement de format, compatibilité avec les exports existants.
+- **Architecture fournisseur-neutre** : un moteur local simple maintenant, interface d'adaptateur prévue pour un modèle IA externe plus tard, sans l'activer ni le payer.
+- **Contexte partagé** : client, prospect, chantier, tâche, rendez-vous, facture et notes doivent pouvoir se référencer sans recopier inutilement les mêmes informations.
+
+## Architecture en couches
+1. **Mémoire (données)** — entités et faits datés, provenance (saisie, import, déduction), confiance, liens et historique.
+2. **Compréhension** — transformer une phrase en intention, éléments (personne, chantier, date, montant, fournisseur) et ambiguïtés.
+3. **Raisonnement** — réunir le contexte pertinent, détecter les incohérences, échéances, oublis et opportunités; expliquer brièvement pourquoi.
+4. **Actions** — créer une proposition structurée (ex. rappel, tâche, relance, note, rendez-vous), avec confirmation explicite et prévisualisation.
+5. **Interface** — conversation / saisie naturelle, carte de proposition, confirmation, suivi du résultat.
+6. **Adaptateurs IA (future option)** — interface abstraite, sélection de fournisseur, consentement et coûts clairement visibles; désactivés tant que non validés.
+
+## Première tranche V3 (fondation)
+- Créer une spécification documentée de la mémoire et des propositions d'action.
+- Ajouter un moteur local autonome (sans connexion ni API) pour normaliser une phrase et détecter quelques intentions fréquentes avec des règles explicites.
+- Tests unitaires sur phrases simples, ambiguës, dates non précisées et demandes qui ne doivent pas déclencher une action.
+- Ne pas encore modifier les modules métier V2 ni intégrer de chatbot en façade : d'abord fiabiliser les fondations.
+
+## Mémoire — schéma envisagé
+Chaque élément est un objet avec : `id`, `type`, `text` ou `data`, `createdAt`, `updatedAt`, `source`, `confidence`, `links[]`, `status`.
+Types de faits: client, prospect, chantier, tâche, rendez-vous, fournisseur, matériel, devis/facture, dépense, préférence métier, note/conversation.
+La mémoire distingue **faits confirmés**, **hypothèses** et **suggestions**. Une déduction ne devient pas un fait confirmé sans validation.
+
+## Format d'une proposition d'action
+- `id`, `type`, `title`, `description`
+- `target` (entité liée si connue)
+- `dueDate` (si date claire)
+- `confidence` et `reasons[]`
+- `requiresConfirmation: true`
+- `status: "proposed" | "accepted" | "rejected" | "completed"`
+
+## Cas de test métier prioritaires
+- « Rappelle-moi d'appeler M. Dupont demain » → proposition de tâche/rappel, date relative à résoudre par l'application.
+- « Le chantier Dupont commence lundi » → proposition de mise à jour du chantier; si plusieurs Dupont, demander lequel.
+- « J'ai reçu 200 € d'acompte de Dupont » → proposer un événement de paiement à vérifier; ne pas inventer une facture ou affecter le paiement sans rapprochement.
+- « Le fournisseur livre les tuiles jeudi » → note/tâche ou événement associé au chantier/fournisseur si identifiable.
+- « J'ai peut-être oublié de relancer le client » → question ou suggestion, pas action automatique.
+- Phrase vague sans destinataire ou date → demander une précision, ne pas inventer.
+
+## Mémoire structurée — première implémentation
+- Stockage séparé et versionné : `artisania.brain.memory.v1`.
+- Import non destructif depuis la structure V2 : les données sources ne sont ni supprimées ni modifiées.
+- Chaque fiche mémorisée conserve son type, son identifiant source, ses données d'origine, sa provenance, son niveau de confiance, son statut et ses liens.
+- Les liens client/chantier/fournisseur sont créés seulement lorsqu'une correspondance unique et exacte est trouvée; les ambiguïtés restent sans lien.
+- Un nouvel import est idempotent : il n'écrase pas une mémoire déjà enrichie.
+- Un résolveur de contexte local retrouve les fiches nommées et leurs relations explicites; les homonymes sont signalés comme ambigus au lieu d'être choisis automatiquement.
+- Un premier orchestrateur local réunit la compréhension d'une phrase, la recherche de contexte et la préparation d'une proposition liée à une fiche lorsqu'elle est identifiée sans ambiguïté.
+- L'orchestrateur ne modifie pas la mémoire et n'exécute aucune action; il retourne une proposition à confirmer. En cas d'homonymie, il demande une précision.
+- Ces modules sont testés mais ne sont pas encore branchés à l'interface de l'application.
+
+## Étapes suivantes
+1. [x] Écrire et tester le moteur local de compréhension (règles de base, sans IA externe).
+2. [x] Construire le premier magasin de mémoire structurée et l'import non destructif des données V2.
+3. [x] Réunir compréhension, mémoire et contexte dans un orchestrateur local qui ne fait que proposer.
+4. Concevoir une interface conversationnelle qui affiche le contexte utilisé et les actions proposées.
+5. Valider sur un panel de scénarios réels d'artisans avant de brancher un modèle IA externe.
+6. Après validation de l'utilité et de la demande, seulement alors étudier coût et intégration d'API IA.
+
+## Statut
+- [x] V2 responsive et fiabilisation des modules — développement terminé, validation manuelle PC/mobile à faire.
+- [x] Branche V3 isolée, basée sur la branche V2 de travail.
+- [x] Architecture et garde-fous documentés.
+- [x] Moteur local de compréhension + tests.
+- [x] Première mémoire structurée autonome + import V2 non destructif.
+- [x] Résolution locale du contexte et détection des homonymes.
+- [x] Orchestrateur local : intention + contexte + proposition prudente.
+- [x] Première intégration du cerveau dans l'onglet Assistant : mémoire locale V2 importée de façon additive, recherche de contexte, détection des homonymes et propositions confirmées par l'utilisateur.
+- [x] Rappels et relances : proposition de tâches avec date, heure, actions détaillées et association client/chantier choisie explicitement.
+- [x] Livraisons : proposition d'un rendez-vous dans le planning, avec date obligatoire et association facultative.
+- [x] Informations de chantier : proposition d'une note de suivi liée à un client ou chantier, sans modifier automatiquement le statut du chantier.
+- [ ] Rendez-vous génériques et informations de paiement : prise en charge à concevoir avec prévisualisation et garde-fous adaptés.\n- [ ] Enrichir les intentions prises en charge et tester les scénarios réels avec l'utilisateur.
+- [ ] Interface cerveau et tests utilisateurs.
+
+
+## Scénarios de validation manuelle — interface V3
+
+À tester dans une copie locale de l'application, avec des données de démonstration :
+
+1. **Rappel** — « Rappelle-moi d'appeler Dupont vendredi à 14h30 pour son chantier de toiture. » Vérifier la date, l'heure, les actions proposées, l'association choisie et la création uniquement après confirmation.
+2. **Annulation** — analyser une demande puis cliquer sur Annuler. Vérifier qu'aucune tâche n'est créée.
+3. **Relance** — « Relancer Dupont demain pour le devis. » Vérifier qu'une tâche est proposée et que le client n'est pas associé sans sélection explicite.
+4. **Livraison** — « Le fournisseur livre les tuiles jeudi. » Vérifier que la date est demandée si elle manque, puis que la livraison est ajoutée au planning seulement après confirmation.
+5. **Point chantier** — « Le chantier Toiture est bloqué. » Vérifier qu'une note de suivi est proposée et que le statut du chantier reste inchangé.
+6. **Homonymes** — utiliser deux clients portant le même nom. Vérifier qu'aucun n'est choisi automatiquement.
+7. **Persistance** — après confirmation, changer d'onglet puis recharger l'application. Vérifier que l'élément est toujours présent.
+8. **Sauvegarde** — exporter les données avant et après les essais et vérifier que les autres collections restent intactes.
+
+Le moteur reste local et déterministe : il reconnaît des formulations couvertes par des règles, pas toutes les façons de parler. Les rendez-vous génériques et le rapprochement de paiements ne sont pas déclarés terminés.
